@@ -141,36 +141,70 @@ function MediaTile({
         touchAction: 'pan-y',
       }}
     >
-      {item.hasThumbnail ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={thumbnailUrl}
-          alt=""
-          loading="lazy"
-          style={{
-            width: viewMode === 'grid' ? '100%' : '64px',
-            height: viewMode === 'grid' ? '100%' : '64px',
-            objectFit: 'cover',
-            flexShrink: 0,
-          }}
-        />
-      ) : (
-        <div
-          style={{
-            width: viewMode === 'grid' ? '100%' : '64px',
-            height: viewMode === 'grid' ? '100%' : '64px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'var(--color-border)',
-            color: 'var(--color-text-muted)',
-            fontSize: '1.5rem',
-            flexShrink: 0,
-          }}
-        >
-          {item.type === 'VIDEO' ? '🎬' : '🖼️'}
-        </div>
-      )}
+      <div
+        style={{
+          position: 'relative',
+          width: viewMode === 'grid' ? '100%' : '64px',
+          height: viewMode === 'grid' ? '100%' : '64px',
+          flexShrink: 0,
+        }}
+      >
+        {item.hasThumbnail ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={thumbnailUrl}
+            alt=""
+            loading="lazy"
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        ) : (
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'var(--color-border)',
+              color: 'var(--color-text-muted)',
+              fontSize: '1.5rem',
+            }}
+          >
+            {item.type === 'VIDEO' ? '🎬' : '🖼️'}
+          </div>
+        )}
+
+        {item.type === 'VIDEO' && item.hasThumbnail ? (
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              pointerEvents: 'none',
+            }}
+          >
+            <div
+              style={{
+                width: viewMode === 'grid' ? 36 : 24,
+                height: viewMode === 'grid' ? 36 : 24,
+                borderRadius: '50%',
+                background: 'rgba(0,0,0,0.45)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#fff',
+                fontSize: viewMode === 'grid' ? '1rem' : '0.7rem',
+                paddingLeft: '2px',
+              }}
+            >
+              ▶
+            </div>
+          </div>
+        ) : null}
+      </div>
 
       {viewMode === 'list' ? (
         <div style={{ minWidth: 0, flex: 1 }}>
