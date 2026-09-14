@@ -30,11 +30,12 @@ export async function fetchMediaPage(
 export async function deleteMediaItems(
   slug: string,
   ids: string[],
-): Promise<{ deletedCount: number; albumDeleted: boolean }> {
+  ownerTokens: Record<string, string>,
+): Promise<{ deletedCount: number; albumDeleted: boolean; unauthorizedCount: number }> {
   const res = await fetch(`/api/albums/${slug}/media`, {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ids }),
+    body: JSON.stringify({ ids, ownerTokens }),
   });
   if (!res.ok) {
     throw new Error('Löschen fehlgeschlagen.');

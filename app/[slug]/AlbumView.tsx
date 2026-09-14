@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { SortField } from '@/lib/gallery';
 import { deleteMediaItems, fetchMediaPage } from './api';
 import { ConfirmDeleteDialog } from './ConfirmDeleteDialog';
@@ -9,6 +9,7 @@ import { MediaGrid } from './MediaGrid';
 import { Toasts, type ToastMessage } from './Toasts';
 import { useDisplayName } from './useDisplayName';
 import { useUploadQueue } from './useUploadQueue';
+import { getOwnerToken, hasOwnerToken } from '@/lib/ownerTokens';
 import type { ApiMediaItem, ViewMode } from './types';
 
 const PAGE_SIZE = 30;
@@ -151,12 +152,22 @@ export function AlbumView({ slug }: { slug: string }) {
     enqueue(Array.from(fileList));
   };
 
+  const selectableIds = useMemo(
+    () => new Set(items.filter((item) => hasOwnerToken(item.id)).map((item) => item.id)),
+    [items],
+  );
+
   const handleEnterSelectionMode = (id: string) => {
+    if (!selectableIds.has(id)) {
+      pushToast('Nur eigene Uploads können gelöscht werden.');
+      return;
+    }
     setSelectionMode(true);
     setSelectedIds(new Set([id]));
   };
 
   const handleToggleSelect = (id: string) => {
+    if (!selectableIds.has(id)) return;
     setSelectedIds((current) => {
       const next = new Set(current);
       if (next.has(id)) {
@@ -172,8 +183,11 @@ export function AlbumView({ slug }: { slug: string }) {
   const handleConfirmDelete = async () => {
     setConfirmingDelete(false);
     const ids = Array.from(selectedIds);
+    const ownerTokens = Object.fromEntries(
+      ids.map((id) => [id, getOwnerToken(id)]).filter((entry): entry is [string, string] => Boolean(entry[1])),
+    );
     try {
-      await deleteMediaItems(slug, ids);
+      await deleteMediaItems(slug, ids, ownerTokens);
       setSelectionMode(false);
       setSelectedIds(new Set());
       await refresh();
@@ -338,6 +352,7 @@ export function AlbumView({ slug }: { slug: string }) {
             viewMode={viewMode}
             selectionMode={selectionMode}
             selectedIds={selectedIds}
+            selectableIds={selectableIds}
             onOpen={setLightboxIndex}
             onToggleSelect={handleToggleSelect}
             onEnterSelectionMode={handleEnterSelectionMode}

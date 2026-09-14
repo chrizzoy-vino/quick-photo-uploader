@@ -48,6 +48,7 @@ export const deleteMediaRepository: DeleteMediaRepository = {
       originalPath: row.originalPath,
       displayPath: row.displayPath,
       thumbnailPath: row.thumbnailPath,
+      ownerToken: row.ownerToken,
     }));
   },
 
@@ -58,4 +59,32 @@ export const deleteMediaRepository: DeleteMediaRepository = {
   },
 
   deleteAlbum,
+};
+
+export interface AdminAlbumSummary {
+  slug: string;
+  mediaCount: number;
+  totalSize: number;
+  lastActivity: Date;
+}
+
+export const adminRepository = {
+  async listAlbums(): Promise<AdminAlbumSummary[]> {
+    const albums = await prisma.album.findMany({
+      include: { media: { select: { size: true, createdAt: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return albums
+      .filter((album) => album.media.length > 0)
+      .map((album) => ({
+        slug: album.slug,
+        mediaCount: album.media.length,
+        totalSize: album.media.reduce((sum, item) => sum + item.size, 0),
+        lastActivity: album.media.reduce(
+          (latest, item) => (item.createdAt > latest ? item.createdAt : latest),
+          album.createdAt,
+        ),
+      }));
+  },
 };

@@ -1,0 +1,3 @@
+# EXIF/GPS-Metadaten in Originalen bleiben bewusst erhalten
+
+Originale werden unverändert so gespeichert, wie sie hochgeladen wurden (siehe Original-Definition in CONTEXT.md) — inklusive vorhandener EXIF- und GPS-Metadaten. Obwohl Alben öffentlich per Link erreichbar sind und ein Link über den vorgesehenen Personenkreis hinaus weitergegeben werden könnte, haben wir uns bewusst gegen ein automatisches Entfernen von GPS-Metadaten aus dem Original entschieden. Erwogen und verworfen: GPS-Tags beim Speichern des Originals strippen — hätte das Kernversprechen "Original bleibt Original, wie hochgeladen" gebrochen und wurde für dieses private, an einen bekannten Personenkreis gerichtete Nutzungsszenario als nicht notwendig erachtet.

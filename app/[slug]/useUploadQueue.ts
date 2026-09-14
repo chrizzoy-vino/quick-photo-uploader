@@ -7,6 +7,7 @@ import {
   type UploadQueueEvent,
   type UploadQueueState,
 } from '@/lib/uploadQueue';
+import { storeOwnerToken } from '@/lib/ownerTokens';
 
 export interface UploadSettledSummary {
   succeeded: number;
@@ -87,6 +88,15 @@ export function useUploadQueue({
     xhr.onload = () => {
       xhrByItemId.current.delete(uploadingItem.id);
       if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const body = JSON.parse(xhr.responseText) as { id?: string; ownerToken?: string };
+          if (body.id && body.ownerToken) {
+            storeOwnerToken(body.id, body.ownerToken);
+          }
+        } catch {
+          // Antwort nicht parsebar - Upload gilt trotzdem als erfolgreich, nur ohne
+          // spätere Selbst-Löschmöglichkeit für diese Datei
+        }
         dispatch({ type: 'SUCCESS', id: uploadingItem.id });
         onItemUploaded();
       } else {

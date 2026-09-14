@@ -6,6 +6,7 @@ function makeRecord(overrides: Partial<DeletableMediaRecord> & { id: string }): 
     originalPath: `/albums/test/original/${overrides.id}.jpg`,
     displayPath: `/albums/test/original/${overrides.id}.jpg`,
     thumbnailPath: `/albums/test/thumb/${overrides.id}.jpg`,
+    ownerToken: `token-${overrides.id}`,
     ...overrides,
   };
 }
@@ -102,5 +103,39 @@ describe('deleteMedia', () => {
 
     expect(repo.deletedAlbumIds).toEqual([]);
     expect(result.albumDeleted).toBe(false);
+  });
+
+  it('only deletes records the authorizer approves, leaving the rest untouched', async () => {
+    const repo = new FakeRepository(
+      [makeRecord({ id: 'a', ownerToken: 'correct' }), makeRecord({ id: 'b', ownerToken: 'other' })],
+      1,
+    );
+    const fileRemover = new FakeFileRemover();
+
+    const result = await deleteMedia(
+      repo,
+      fileRemover,
+      'album-1',
+      ['a', 'b'],
+      (record) => record.ownerToken === 'correct',
+    );
+
+    expect(repo.deletedIds).toEqual(['a']);
+    expect(fileRemover.removedPaths).toEqual([
+      '/albums/test/original/a.jpg',
+      '/albums/test/thumb/a.jpg',
+    ]);
+    expect(result.deletedCount).toBe(1);
+    expect(result.unauthorizedCount).toBe(1);
+  });
+
+  it('defaults to authorizing everything when no authorizer is given', async () => {
+    const repo = new FakeRepository([makeRecord({ id: 'a' })], 0);
+    const fileRemover = new FakeFileRemover();
+
+    const result = await deleteMedia(repo, fileRemover, 'album-1', ['a']);
+
+    expect(result.deletedCount).toBe(1);
+    expect(result.unauthorizedCount).toBe(0);
   });
 });

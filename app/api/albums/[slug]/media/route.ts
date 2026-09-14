@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { deleteMedia } from '@/lib/deleteMedia';
+import { isAdminRequest } from '@/lib/adminAuth';
+import { deleteMedia, type DeletableMediaRecord } from '@/lib/deleteMedia';
 import { getAlbumWithMedia, type SortField } from '@/lib/gallery';
 import { deleteMediaRepository, galleryRepository } from '@/lib/repositories';
 import { resolveAlbumSlug } from '@/lib/slug';
@@ -71,18 +72,30 @@ export async function DELETE(
     return NextResponse.json({ error: resolution.reason }, { status: 400 });
   }
 
-  const body = (await request.json().catch(() => null)) as { ids?: unknown } | null;
+  const body = (await request.json().catch(() => null)) as
+    | { ids?: unknown; ownerTokens?: unknown }
+    | null;
   const ids = Array.isArray(body?.ids) ? body!.ids.filter((id): id is string => typeof id === 'string') : [];
   if (ids.length === 0) {
     return NextResponse.json({ error: 'no_ids' }, { status: 400 });
   }
+  const ownerTokens =
+    body?.ownerTokens && typeof body.ownerTokens === 'object' && !Array.isArray(body.ownerTokens)
+      ? (body.ownerTokens as Record<string, unknown>)
+      : {};
 
   const album = await galleryRepository.findAlbumBySlug(resolution.slug);
   if (!album) {
     return NextResponse.json({ error: 'album_not_found' }, { status: 404 });
   }
 
-  const result = await deleteMedia(deleteMediaRepository, fsFileRemover, album.id, ids);
+  // Administrator darf alles löschen; sonst nur, wessen mitgeschicktes Lösch-Token zum
+  // gespeicherten passt (siehe ADR-0004) — kein Login, aber auch keine fremden Löschungen.
+  const authorize = isAdminRequest(request)
+    ? undefined
+    : (record: DeletableMediaRecord) => ownerTokens[record.id] === record.ownerToken;
+
+  const result = await deleteMedia(deleteMediaRepository, fsFileRemover, album.id, ids, authorize);
 
   if (result.albumDeleted) {
     await removeAlbumDirectory(resolution.slug).catch(() => undefined);

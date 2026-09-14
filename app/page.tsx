@@ -17,6 +17,15 @@ export default function HomePage() {
         Öffne einen Album-Link (z.&nbsp;B. aus WhatsApp), um Fotos und Videos hochzuladen und
         anzusehen.
       </p>
+      <footer style={{ marginTop: '24px', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+        <a href="/impressum" style={{ color: 'inherit' }}>
+          Impressum
+        </a>
+        {' · '}
+        <a href="/datenschutz" style={{ color: 'inherit' }}>
+          Datenschutz
+        </a>
+      </footer>
     </main>
   );
 }

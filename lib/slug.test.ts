@@ -32,5 +32,7 @@ describe('resolveAlbumSlug', () => {
   it('rejects reserved system paths', () => {
     expect(resolveAlbumSlug('api')).toEqual({ ok: false, reason: 'reserved' });
     expect(resolveAlbumSlug('ADMIN')).toEqual({ ok: false, reason: 'reserved' });
+    expect(resolveAlbumSlug('impressum')).toEqual({ ok: false, reason: 'reserved' });
+    expect(resolveAlbumSlug('datenschutz')).toEqual({ ok: false, reason: 'reserved' });
   });
 });

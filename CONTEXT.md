@@ -30,3 +30,15 @@ _Avoid_: Übersicht, Liste (Liste ist nur einer der Ansichtsmodi der Galerie, ke
 **Anzeigename**:
 Der einem Uploader zugeordnete Name, der bei jeder von ihm hochgeladenen Mediendatei angezeigt wird. Standardmäßig zufällig generiert, vom Uploader änderbar, gilt geräteweit (nicht album-spezifisch) und wird pro Mediendatei zum Upload-Zeitpunkt fest eingefroren — eine spätere Namensänderung wirkt nur auf künftige Uploads.
 _Avoid_: Benutzername, Username, Profilname (es gibt keine Benutzerkonten)
+
+**Lösch-Token**:
+Ein pro Mediendatei beim Upload erzeugtes Geheimnis, das nur im Browser des Uploaders hinterlegt wird und ausschließlich diesem erlaubt, genau diese Mediendatei zu löschen. Wie der Anzeigename wird es zum Upload-Zeitpunkt fest an die Mediendatei gebunden, ist aber kein Identitätsnachweis und dient einzig der Löschberechtigung — wer Speicher/Gerät verliert, verliert die Löschmöglichkeit für seine eigenen Uploads.
+_Avoid_: Owner-Token, Besitz-Token, Passwort
+
+**Administrator**:
+Die Rolle, die sich über den Admin-Bereich anmeldet und dadurch alle Beschränkungen umgehen darf, die für gewöhnliche Uploader gelten — insbesondere das Löschen fremder Mediendateien oder ganzer Alben ohne Lösch-Token. Es gibt genau eine Administrator-Identität für die gesamte Installation, keine einzelnen Admin-Konten.
+_Avoid_: Admin (als Substantiv im Fließtext), Betreiber (das meint die Person, die den Server betreibt, nicht diese App-Rolle)
+
+**Admin-Bereich**:
+Der geschützte Teil der App, in dem der Administrator alle Alben mit Kennzahlen (Dateianzahl, Größe, letzte Aktivität) einsehen und Mediendateien oder ganze Alben unabhängig von Lösch-Token löschen kann.
+_Avoid_: Admin-Panel, Backend, Dashboard

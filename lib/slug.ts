@@ -9,6 +9,8 @@ const SLUG_PATTERN = /^[a-z0-9-]+$/;
 const RESERVED_SLUGS = new Set([
   'api',
   'admin',
+  'impressum',
+  'datenschutz',
   '_next',
   'static',
   'favicon.ico',

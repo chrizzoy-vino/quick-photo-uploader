@@ -28,6 +28,7 @@ model MediaItem {
   type          MediaType
   size          Int
   uploaderName  String
+  ownerToken    String
   originalPath  String
   displayPath   String
   thumbnailPath String?

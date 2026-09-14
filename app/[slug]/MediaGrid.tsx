@@ -13,6 +13,7 @@ interface MediaGridProps {
   viewMode: ViewMode;
   selectionMode: boolean;
   selectedIds: Set<string>;
+  selectableIds: Set<string>;
   onOpen: (index: number) => void;
   onToggleSelect: (id: string) => void;
   onEnterSelectionMode: (id: string) => void;
@@ -24,6 +25,7 @@ export function MediaGrid({
   viewMode,
   selectionMode,
   selectedIds,
+  selectableIds,
   onOpen,
   onToggleSelect,
   onEnterSelectionMode,
@@ -45,6 +47,7 @@ export function MediaGrid({
           item={item}
           viewMode={viewMode}
           selected={selectedIds.has(item.id)}
+          selectable={selectableIds.has(item.id)}
           selectionMode={selectionMode}
           onOpen={() => onOpen(index)}
           onToggleSelect={() => onToggleSelect(item.id)}
@@ -60,6 +63,7 @@ function MediaTile({
   item,
   viewMode,
   selected,
+  selectable,
   selectionMode,
   onOpen,
   onToggleSelect,
@@ -69,6 +73,7 @@ function MediaTile({
   item: ApiMediaItem;
   viewMode: ViewMode;
   selected: boolean;
+  selectable: boolean;
   selectionMode: boolean;
   onOpen: () => void;
   onToggleSelect: () => void;
@@ -88,6 +93,11 @@ function MediaTile({
   const handlePointerDown = (event: ReactPointerEvent) => {
     longPressedRef.current = false;
     startPos.current = { x: event.clientX, y: event.clientY };
+    if (!selectable && selectionMode) {
+      // Schon im Auswahlmodus: fremde Uploads reagieren gar nicht mehr auf Long-Press, sie
+      // haben ja ohnehin keinen Auswahlpunkt.
+      return;
+    }
     timerRef.current = setTimeout(() => {
       longPressedRef.current = true;
       onEnterSelectionMode();
@@ -108,10 +118,12 @@ function MediaTile({
       return;
     }
     if (selectionMode) {
-      onToggleSelect();
-    } else {
-      onOpen();
+      if (selectable) {
+        onToggleSelect();
+      }
+      return;
     }
+    onOpen();
   };
 
   const thumbnailUrl = `/api/albums/${slug}/media/${item.id}/thumbnail`;
@@ -133,12 +145,13 @@ function MediaTile({
         padding: viewMode === 'list' ? '8px' : 0,
         border: 'none',
         background: 'var(--color-surface)',
-        cursor: 'pointer',
+        cursor: selectionMode && !selectable ? 'default' : 'pointer',
         overflow: 'hidden',
         borderRadius: viewMode === 'grid' ? '6px' : 0,
         textAlign: 'left',
         userSelect: 'none',
         touchAction: 'pan-y',
+        opacity: selectionMode && !selectable ? 0.45 : 1,
       }}
     >
       <div
@@ -224,7 +237,7 @@ function MediaTile({
         </div>
       ) : null}
 
-      {selectionMode ? (
+      {selectionMode && selectable ? (
         <div
           style={{
             position: 'absolute',

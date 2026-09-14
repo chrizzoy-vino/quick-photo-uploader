@@ -143,6 +143,7 @@ export async function POST(
 
   const file = uploadedFile as UploadedFile;
   const uploaderName = sanitizeDisplayName(uploaderNameField, 'Anonym');
+  const ownerToken = randomUUID();
 
   const album = await prisma.album.upsert({
     where: { slug },
@@ -157,6 +158,7 @@ export async function POST(
       type: file.mediaKind,
       size: file.size,
       uploaderName,
+      ownerToken,
       originalPath: file.originalPath,
       displayPath: file.originalPath,
       thumbnailPath: null,
@@ -173,6 +175,7 @@ export async function POST(
       size: media.size,
       uploaderName: media.uploaderName,
       createdAt: media.createdAt,
+      ownerToken: media.ownerToken,
     },
     { status: 201 },
   );

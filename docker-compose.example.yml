@@ -20,6 +20,11 @@ services:
     restart: unless-stopped
     ports:
       - '3000:3000'
+    environment:
+      # Zugangs-Secret fuer den Admin-Bereich (/admin) - langer, zufaelliger Wert, z.B. via
+      # `openssl rand -hex 32` erzeugen und hier (oder in einer .env-Datei daneben) eintragen.
+      # Ohne gesetztes Secret bleibt der Admin-Bereich gesperrt.
+      ADMIN_SECRET: "changeme"
     volumes:
       # Enthaelt sowohl die SQLite-Datenbank als auch die Album-Dateien
       # (Originale, Vorschaubilder, konvertierte Anzeige-Varianten).

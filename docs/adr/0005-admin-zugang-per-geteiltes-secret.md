@@ -1,0 +1,3 @@
+# Admin-Zugang über ein geteiltes Secret statt Cloudflare Access
+
+Der Admin-Bereich (ADR-0004) braucht einen Zugriffsschutz. Erwogen wurden Cloudflare Access (Zero-Trust-Login vor der App, kein App-Code nötig, aber Konfiguration außerhalb des Repos im Cloudflare-Dashboard) und eine IP-Allowlist (unpraktisch ohne feste IP oder VPN). Wir haben uns für ein geteiltes Admin-Secret entschieden, das über eine Login-Seite der App geprüft und danach per Cookie gehalten wird — das hält die gesamte Zugriffskontrolle im App-Code und macht sie unabhängig vom vorgeschalteten Reverse Proxy. Konsequenz: die Sicherheit des Admin-Bereichs hängt vollständig an der Geheimhaltung dieses einen Secrets; es gibt keine separate Identitätsprüfung oder Mehrfaktor-Absicherung.
