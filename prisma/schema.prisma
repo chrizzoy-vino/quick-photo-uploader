@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum MediaType {
+  PHOTO
+  VIDEO
+}
+
+model Album {
+  id        String      @id @default(cuid())
+  slug      String      @unique
+  createdAt DateTime    @default(now())
+  media     MediaItem[]
+}
+
+model MediaItem {
+  id            String    @id @default(cuid())
+  album         Album     @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  albumId       String
+  filename      String
+  type          MediaType
+  size          Int
+  uploaderName  String
+  originalPath  String
+  displayPath   String
+  thumbnailPath String?
+  createdAt     DateTime  @default(now())
+
+  @@index([albumId])
+}

@@ -1,0 +1,3 @@
+# Das Dateisystem ist die Wahrheitsquelle, nicht die Datenbank
+
+Mediendateien können extern (`rm` auf dem Server) verschwinden, ohne dass die App das mitbekommt, und ein Album muss verschwinden, sobald es leer ist. Wir haben entschieden, dass die Datenbank nur ein lazy nachgeführter Index ist, der bei jedem Galerie-Aufruf gegen das Dateisystem abgeglichen wird — eine auf der Platte fehlende Datei gilt als gelöscht, ein leeres Album als nicht mehr existent. Erwogen und verworfen: DB als alleinige Wahrheitsquelle mit Soft-Deletes (würde nach externem `rm` aus der Realität driften), periodischer Reconciliation-Cronjob (unnötiger Betriebsaufwand für diese Größenordnung).

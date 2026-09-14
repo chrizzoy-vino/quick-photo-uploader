@@ -1,0 +1,8 @@
+node_modules
+.next
+data
+*.sqlite
+*.sqlite-journal
+.env
+.env.local
+.git
