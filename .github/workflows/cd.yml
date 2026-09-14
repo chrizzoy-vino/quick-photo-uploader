@@ -35,7 +35,7 @@ jobs:
             type=sha,prefix=sha-,format=short
 
       - name: QEMU einrichten (fuer Multi-Arch-Build)
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
 
       - name: Docker Buildx einrichten
         uses: docker/setup-buildx-action@v3
