@@ -39,7 +39,11 @@ export async function createThumbnailForPhoto(
   sourcePath: string,
   thumbnailPath: string,
 ): Promise<void> {
+  // .autoOrient() bäckt die EXIF-Orientation in die Pixel ein, bevor .jpeg() die Metadaten beim
+  // Schreiben verwirft - sonst bleibt das Thumbnail (anders als das per Browser aus dem
+  // EXIF-Tag korrekt gedrehte Original) unrotiert.
   await sharp(sourcePath)
+    .autoOrient()
     .resize(480, 480, { fit: 'inside', withoutEnlargement: true })
     .jpeg({ quality: 70 })
     .toFile(thumbnailPath);
