@@ -42,3 +42,7 @@ _Avoid_: Admin (als Substantiv im Fließtext), Betreiber (das meint die Person, 
 **Admin-Bereich**:
 Der geschützte Teil der App, in dem der Administrator alle Alben mit Kennzahlen (Dateianzahl, Größe, letzte Aktivität) einsehen und Mediendateien oder ganze Alben unabhängig von Lösch-Token löschen kann.
 _Avoid_: Admin-Panel, Backend, Dashboard
+
+**Duplikat**:
+Eine hochzuladende Datei, deren Inhalt (Datei-Bytes, per Hash verglichen) exakt einer bereits im selben Album vorhandenen Mediendatei entspricht — unabhängig vom Dateinamen. Der Vergleich gilt ausschließlich innerhalb desselben Albums; dieselbe Datei in einem anderen Album ist kein Duplikat. Ein erkanntes Duplikat wird nicht als neue Mediendatei gespeichert; der Upload wird abgelehnt, mit Hinweis darauf, von wem die vorhandene Mediendatei stammt. Eine inhaltlich neu komprimierte Version derselben Aufnahme (z.B. nach einer WhatsApp-Weiterleitung) hat andere Bytes und gilt nicht als Duplikat.
+_Avoid_: Kopie, doppelte Datei

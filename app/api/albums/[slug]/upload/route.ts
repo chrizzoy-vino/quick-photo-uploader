@@ -6,7 +6,8 @@ import { finished } from 'node:stream/promises';
 import type { ReadableStream as NodeWebReadableStream } from 'node:stream/web';
 import path from 'node:path';
 import { after, NextResponse } from 'next/server';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
+import { Prisma } from '@prisma/client';
 import { sanitizeDisplayName } from '@/lib/displayName';
 import {
   createDisplayVersionForPhoto,
@@ -35,6 +36,7 @@ interface UploadedFile {
   originalPath: string;
   mediaKind: MediaKind;
   size: number;
+  contentHash: string;
 }
 
 export async function POST(
@@ -94,8 +96,12 @@ export async function POST(
     partialOriginalPath = originalPath;
 
     let size = 0;
+    // Server-seitig verifizierter Hash für den Duplikat-Vergleich (ADR-0007) - unabhängig davon,
+    // was ein Client vorab per Duplikat-Check-Endpoint berechnet hat.
+    const hash = createHash('sha256');
     fileStream.on('data', (chunk: Buffer) => {
       size += chunk.length;
+      hash.update(chunk);
     });
 
     const writeStream = createWriteStream(originalPath);
@@ -110,7 +116,15 @@ export async function POST(
       writeStream.once('finish', resolve);
       fileStream.pipe(writeStream);
     }).then(() => {
-      uploadedFile = { mediaId, filename: info.filename, ext, originalPath, mediaKind, size };
+      uploadedFile = {
+        mediaId,
+        filename: info.filename,
+        ext,
+        originalPath,
+        mediaKind,
+        size,
+        contentHash: hash.digest('hex'),
+      };
     });
   });
 
@@ -151,19 +165,43 @@ export async function POST(
     update: {},
   });
 
-  const media = await prisma.mediaItem.create({
-    data: {
-      albumId: album.id,
-      filename: file.filename,
-      type: file.mediaKind,
-      size: file.size,
-      uploaderName,
-      ownerToken,
-      originalPath: file.originalPath,
-      displayPath: file.originalPath,
-      thumbnailPath: null,
-    },
-  });
+  let media;
+  try {
+    media = await prisma.mediaItem.create({
+      data: {
+        albumId: album.id,
+        filename: file.filename,
+        type: file.mediaKind,
+        size: file.size,
+        uploaderName,
+        ownerToken,
+        contentHash: file.contentHash,
+        originalPath: file.originalPath,
+        displayPath: file.originalPath,
+        thumbnailPath: null,
+      },
+    });
+  } catch (error) {
+    // Verstößt gegen den Unique-Index auf (albumId, contentHash) - siehe "Duplikat" in
+    // CONTEXT.md / ADR-0007. Greift auch, wenn der clientseitige Vorab-Check das Duplikat aus
+    // einem Wettlauf zweier gleichzeitiger Uploads nicht erkannt hat.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      await rm(file.originalPath, { force: true });
+      const existing = await prisma.mediaItem.findFirst({
+        where: { albumId: album.id, contentHash: file.contentHash },
+        select: { uploaderName: true, createdAt: true },
+      });
+      return NextResponse.json(
+        {
+          error: 'duplicate',
+          uploaderName: existing?.uploaderName ?? null,
+          createdAt: existing?.createdAt ?? null,
+        },
+        { status: 409 },
+      );
+    }
+    throw error;
+  }
 
   after(() => processMediaInBackground(slug, media.id, file));
 

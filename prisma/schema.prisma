@@ -29,10 +29,12 @@ model MediaItem {
   size          Int
   uploaderName  String
   ownerToken    String
+  contentHash   String?
   originalPath  String
   displayPath   String
   thumbnailPath String?
   createdAt     DateTime  @default(now())
 
   @@index([albumId])
+  @@unique([albumId, contentHash])
 }

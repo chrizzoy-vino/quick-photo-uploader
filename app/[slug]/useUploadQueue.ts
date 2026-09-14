@@ -4,10 +4,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   createEmptyUploadQueueState,
   uploadQueueReducer,
+  type UploadItem,
   type UploadQueueEvent,
   type UploadQueueState,
 } from '@/lib/uploadQueue';
 import { storeOwnerToken } from '@/lib/ownerTokens';
+import { checkForDuplicate } from '@/lib/checkDuplicate';
 
 export interface UploadSettledSummary {
   succeeded: number;
@@ -33,6 +35,7 @@ export function useUploadQueue({
   const [state, setState] = useState<UploadQueueState>(createEmptyUploadQueueState());
   const startedIds = useRef(new Set<string>());
   const xhrByItemId = useRef(new Map<string, XMLHttpRequest>());
+  const duplicateCheckAbortByItemId = useRef(new Map<string, AbortController>());
   const uploaderNameRef = useRef(uploaderName);
   uploaderNameRef.current = uploaderName;
   const wasActiveRef = useRef(false);
@@ -53,6 +56,9 @@ export function useUploadQueue({
     for (const xhr of xhrByItemId.current.values()) {
       xhr.abort();
     }
+    for (const controller of duplicateCheckAbortByItemId.current.values()) {
+      controller.abort();
+    }
     dispatch({ type: 'CANCEL' });
   }, [dispatch]);
 
@@ -60,7 +66,57 @@ export function useUploadQueue({
     dispatch({ type: 'RETRY_FAILED' });
   }, [dispatch]);
 
-  // Startet den tatsächlichen Netzwerk-Request, sobald der Reducer ein Item auf "uploading" setzt.
+  const startUpload = useCallback(
+    (uploadingItem: UploadItem) => {
+      const formData = new FormData();
+      formData.append('uploaderName', uploaderNameRef.current);
+      formData.append('file', uploadingItem.file);
+
+      const xhr = new XMLHttpRequest();
+      xhrByItemId.current.set(uploadingItem.id, xhr);
+      xhr.open('POST', `/api/albums/${slug}/upload`);
+
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          dispatch({
+            type: 'PROGRESS',
+            id: uploadingItem.id,
+            progress: Math.round((event.loaded / event.total) * 100),
+          });
+        }
+      };
+      xhr.onload = () => {
+        xhrByItemId.current.delete(uploadingItem.id);
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const body = JSON.parse(xhr.responseText) as { id?: string; ownerToken?: string };
+            if (body.id && body.ownerToken) {
+              storeOwnerToken(body.id, body.ownerToken);
+            }
+          } catch {
+            // Antwort nicht parsebar - Upload gilt trotzdem als erfolgreich, nur ohne
+            // spätere Selbst-Löschmöglichkeit für diese Datei
+          }
+          dispatch({ type: 'SUCCESS', id: uploadingItem.id });
+          onItemUploaded();
+        } else {
+          dispatch({ type: 'FAILURE', id: uploadingItem.id, error: describeUploadError(xhr) });
+        }
+      };
+      xhr.onerror = () => {
+        xhrByItemId.current.delete(uploadingItem.id);
+        dispatch({ type: 'FAILURE', id: uploadingItem.id, error: 'Netzwerkfehler' });
+      };
+      xhr.onabort = () => {
+        xhrByItemId.current.delete(uploadingItem.id);
+      };
+      xhr.send(formData);
+    },
+    [slug, dispatch, onItemUploaded],
+  );
+
+  // Sobald der Reducer ein Item auf "uploading" setzt: erst per Duplikat-Check (ADR-0007) prüfen,
+  // ob die Datei im Album schon existiert, bevor der eigentliche Netzwerk-Request startet.
   useEffect(() => {
     const uploadingItem = state.items.find((item) => item.status === 'uploading');
     if (!uploadingItem || startedIds.current.has(uploadingItem.id)) {
@@ -68,50 +124,31 @@ export function useUploadQueue({
     }
     startedIds.current.add(uploadingItem.id);
 
-    const formData = new FormData();
-    formData.append('uploaderName', uploaderNameRef.current);
-    formData.append('file', uploadingItem.file);
+    const controller = new AbortController();
+    duplicateCheckAbortByItemId.current.set(uploadingItem.id, controller);
 
-    const xhr = new XMLHttpRequest();
-    xhrByItemId.current.set(uploadingItem.id, xhr);
-    xhr.open('POST', `/api/albums/${slug}/upload`);
-
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable) {
-        dispatch({
-          type: 'PROGRESS',
-          id: uploadingItem.id,
-          progress: Math.round((event.loaded / event.total) * 100),
-        });
-      }
-    };
-    xhr.onload = () => {
-      xhrByItemId.current.delete(uploadingItem.id);
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          const body = JSON.parse(xhr.responseText) as { id?: string; ownerToken?: string };
-          if (body.id && body.ownerToken) {
-            storeOwnerToken(body.id, body.ownerToken);
-          }
-        } catch {
-          // Antwort nicht parsebar - Upload gilt trotzdem als erfolgreich, nur ohne
-          // spätere Selbst-Löschmöglichkeit für diese Datei
+    checkForDuplicate(slug, uploadingItem.file, controller.signal)
+      .then((duplicate) => {
+        duplicateCheckAbortByItemId.current.delete(uploadingItem.id);
+        if (controller.signal.aborted) return;
+        if (duplicate) {
+          dispatch({
+            type: 'FAILURE',
+            id: uploadingItem.id,
+            error: `Bereits hochgeladen von ${duplicate.uploaderName}`,
+          });
+          return;
         }
-        dispatch({ type: 'SUCCESS', id: uploadingItem.id });
-        onItemUploaded();
-      } else {
-        dispatch({ type: 'FAILURE', id: uploadingItem.id, error: describeUploadError(xhr) });
-      }
-    };
-    xhr.onerror = () => {
-      xhrByItemId.current.delete(uploadingItem.id);
-      dispatch({ type: 'FAILURE', id: uploadingItem.id, error: 'Netzwerkfehler' });
-    };
-    xhr.onabort = () => {
-      xhrByItemId.current.delete(uploadingItem.id);
-    };
-    xhr.send(formData);
-  }, [state.items, slug, dispatch, onItemUploaded]);
+        startUpload(uploadingItem);
+      })
+      .catch(() => {
+        duplicateCheckAbortByItemId.current.delete(uploadingItem.id);
+        if (controller.signal.aborted) return;
+        // Duplikat-Check fehlgeschlagen (z.B. Netzwerkfehler) - Upload trotzdem versuchen; die
+        // serverseitige Prüfung in der Upload-Route greift ohnehin noch einmal verbindlich.
+        startUpload(uploadingItem);
+      });
+  }, [state.items, slug, dispatch, startUpload]);
 
   // Meldet einen Sammel-Toast, sobald keine Datei mehr läuft/wartet.
   useEffect(() => {
@@ -139,7 +176,7 @@ export function useUploadQueue({
 
 function describeUploadError(xhr: XMLHttpRequest): string {
   try {
-    const body = JSON.parse(xhr.responseText) as { error?: string };
+    const body = JSON.parse(xhr.responseText) as { error?: string; uploaderName?: string };
     switch (body.error) {
       case 'unsupported_file_type':
         return 'Dateityp wird nicht unterstützt';
@@ -147,6 +184,10 @@ function describeUploadError(xhr: XMLHttpRequest): string {
       case 'invalid_chars':
       case 'reserved':
         return 'Ungültiger Album-Name';
+      case 'duplicate':
+        return body.uploaderName
+          ? `Bereits hochgeladen von ${body.uploaderName}`
+          : 'Bereits hochgeladen';
       default:
         return 'Upload fehlgeschlagen';
     }
