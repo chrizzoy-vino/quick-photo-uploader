@@ -15,6 +15,7 @@
     "prisma:migrate:dev": "prisma migrate dev"
   },
   "dependencies": {
+    "@prisma/adapter-better-sqlite3": "^7.10.0",
     "@prisma/client": "^7.10.0",
     "busboy": "^1.6.0",
     "heic-convert": "^2.1.0",
@@ -34,12 +35,12 @@
     "vitest": "^5.0.0"
   },
   "allowScripts": {
-    "@prisma/client@6.19.3": true,
-    "@prisma/engines@6.19.3": true,
     "esbuild@0.21.5": true,
-    "prisma@6.19.3": true,
     "sharp@0.35.4": true,
     "fsevents@2.3.3": true,
-    "sharp@0.34.5": true
+    "sharp@0.34.5": true,
+    "@prisma/engines@7.10.0": true,
+    "better-sqlite3@12.11.1": true,
+    "prisma@7.10.0": true
   }
 }
