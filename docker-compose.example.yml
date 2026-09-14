@@ -1,0 +1,33 @@
+# Beispiel-Compose-Datei fuer das Deployment im Homelab.
+#
+# Anders als docker-compose.yml (baut lokal aus dem Repo) laedt diese Datei
+# das fertige Image, das die CD-Pipeline (.github/workflows/cd.yml) bei jedem
+# Push auf `main` nach ghcr.io baut und pusht.
+#
+# Nutzung:
+#   1. Diese Datei z.B. nach docker-compose.yml kopieren (oder direkt anpassen).
+#   2. `docker compose up -d` im Zielverzeichnis ausfuehren.
+#
+# Falls das GHCR-Package privat ist, muss der Host vorher einmalig einloggen:
+#   docker login ghcr.io -u <github-username> -p <personal-access-token mit read:packages>
+# Alternativ das Package unter github.com/<user>/<repo>/pkgs/container/quick-photo-uploader
+# auf "Public" stellen, dann ist kein Login noetig.
+
+services:
+  quick-photo-uploader:
+    image: ghcr.io/chrizzoy-vino/quick-photo-uploader:latest
+    container_name: quick-photo-uploader
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    volumes:
+      # Enthaelt sowohl die SQLite-Datenbank als auch die Album-Dateien
+      # (Originale, Vorschaubilder, konvertierte Anzeige-Varianten).
+      - ./data:/data
+    # Optional: feste Version statt `latest` verwenden, sobald es Git-Tags
+    # (z.B. v1.0.0) gibt:
+    # image: ghcr.io/chrizzoy-vino/quick-photo-uploader:1.0.0
+    #
+    # Optional: falls ein Reverse Proxy (Traefik, nginx, Caddy, ...) im
+    # Homelab laeuft, hier passende Labels/Netzwerke ergaenzen und ports
+    # entfernen.
