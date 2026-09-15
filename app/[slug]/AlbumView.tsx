@@ -74,7 +74,7 @@ export function AlbumView({ slug }: { slug: string }) {
       setItems(page.items);
       setNextCursor(page.nextCursor);
     } catch {
-      // Polling-Fehler bewusst still ignorieren, der nächste Tick versucht es erneut.
+      // Deliberately ignore polling errors silently, the next tick will retry.
     } finally {
       isRefreshingRef.current = false;
     }

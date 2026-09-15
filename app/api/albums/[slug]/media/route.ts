@@ -89,8 +89,8 @@ export async function DELETE(
     return NextResponse.json({ error: 'album_not_found' }, { status: 404 });
   }
 
-  // Administrator darf alles löschen; sonst nur, wessen mitgeschicktes Lösch-Token zum
-  // gespeicherten passt (siehe ADR-0004) — kein Login, aber auch keine fremden Löschungen.
+  // An administrator may delete anything; otherwise only whoever's submitted owner token
+  // matches the stored one (see ADR-0004) — no login, but also no deleting other people's uploads.
   const authorize = isAdminRequest(request)
     ? undefined
     : (record: DeletableMediaRecord) => ownerTokens[record.id] === record.ownerToken;

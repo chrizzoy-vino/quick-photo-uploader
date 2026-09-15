@@ -1,5 +1,5 @@
-# Kein Login: Link-Besitz gewährt volle Album-Rechte
+# No login: possessing the link grants full album rights
 
-Alben werden per Messenger-Link (z.B. WhatsApp) geteilt; die Zielgruppe ist wenig technisch versiert und will maximale Reibungslosigkeit. Wir haben entschieden, auf Login/Benutzerkonten zu verzichten — wer den Album-Link hat, darf in diesem Album beliebig hochladen und beliebige Mediendateien löschen, auch fremde. Erwogen und verworfen: Löschrechte auf eigene Uploads beschränken, optionaler Album-Passwortschutz — beides hätte den "einfach wie ein geteilter Ordner"-Charakter zerstört.
+Albums are shared via messenger links (e.g. WhatsApp); the target audience is not very technical and wants maximum frictionlessness. We decided to skip login/user accounts entirely — whoever has the album link may upload freely and delete any media item in that album, including other people's. Considered and rejected: limiting delete rights to one's own uploads, an optional album password — both would have destroyed the "as simple as a shared folder" character.
 
-**Teilweise revidiert durch ADR-0004**: Nach dem Live-Betrieb unter einer öffentlich erreichbaren Domain wurde die hier verworfene Beschränkung auf eigene Uploads doch eingeführt, ohne Login.
+**Partially revised by ADR-0004**: after going live on a publicly reachable domain, the restriction to one's own uploads rejected here was introduced after all, without adding a login.

@@ -17,19 +17,19 @@ jobs:
       DATABASE_URL: 'file:./data/db.sqlite'
       STORAGE_ROOT: './data/albums'
     steps:
-      - name: Code auschecken
+      - name: Check out code
         uses: actions/checkout@v7
 
-      - name: Node.js einrichten
+      - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
 
-      - name: Abhaengigkeiten installieren
+      - name: Install dependencies
         run: npm ci
 
-      - name: Prisma Client generieren
+      - name: Generate Prisma client
         run: npx prisma generate
 
       - name: Typecheck
@@ -38,5 +38,5 @@ jobs:
       - name: Tests
         run: npm test
 
-      - name: Production-Build
+      - name: Production build
         run: npm run build

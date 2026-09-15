@@ -94,8 +94,8 @@ function MediaTile({
     longPressedRef.current = false;
     startPos.current = { x: event.clientX, y: event.clientY };
     if (!selectable && selectionMode) {
-      // Schon im Auswahlmodus: fremde Uploads reagieren gar nicht mehr auf Long-Press, sie
-      // haben ja ohnehin keinen Auswahlpunkt.
+      // Already in selection mode: other people's uploads no longer respond to long-press,
+      // since they have no selection point anyway.
       return;
     }
     timerRef.current = setTimeout(() => {

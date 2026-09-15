@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 
-// Alben sind ausschließlich per geteiltem Link gedacht, nicht zum Auffinden ueber
-// Suchmaschinen - siehe auch den X-Robots-Tag-Header in proxy.ts.
+// Albums are meant to be found only via a shared link, not via search engines —
+// see also the X-Robots-Tag header in proxy.ts.
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {

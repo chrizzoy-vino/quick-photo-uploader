@@ -7,8 +7,8 @@ import { fsFileRemover, removeAlbumDirectory } from '@/lib/storage';
 
 export const runtime = 'nodejs';
 
-/** Löscht ein ganzes Album als Administrator — technisch: alle seine Mediendateien löschen,
- *  wodurch das Album gemäß seiner Definition (CONTEXT.md) aufhört zu existieren. */
+/** Deletes an entire album as an administrator — technically: deletes all its media items,
+ *  which per its definition (CONTEXT.md) makes the album cease to exist. */
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ slug: string }> },

@@ -6,9 +6,9 @@ export const runtime = 'nodejs';
 
 const HASH_PATTERN = /^[0-9a-f]{64}$/;
 
-// Clientseitiger Vorab-Check vor dem eigentlichen Upload (ADR-0007) - vermeidet unnötige
-// Datenübertragung, ist aber nur eine Optimierung. Die verbindliche Prüfung passiert erst in der
-// Upload-Route anhand des serverseitig aus den tatsächlichen Datei-Bytes berechneten Hash.
+// Client-side pre-check before the actual upload (ADR-0007) - avoids unnecessary
+// data transfer, but is only an optimization. The authoritative check happens in the
+// upload route, based on a hash computed server-side from the actual file bytes.
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ slug: string }> },

@@ -26,13 +26,13 @@ export function isAdminConfigured(): boolean {
   return Boolean(process.env.ADMIN_SECRET);
 }
 
-/** Vergleicht die im Admin-Login eingegebene Zeichenkette mit dem konfigurierten Admin-Secret. */
+/** Compares the string entered on the admin login with the configured admin secret. */
 export function isValidAdminSecret(candidate: string): boolean {
   return isAdminConfigured() && safeEqual(candidate, getSecret());
 }
 
-/** Erzeugt den signierten, zeitlich begrenzten Cookie-Wert für eine Admin-Sitzung — kein
- *  serverseitiger Session-Store nötig, die Gültigkeit steckt (signiert) im Wert selbst. */
+/** Generates the signed, time-limited cookie value for an admin session — no server-side
+ *  session store needed, the validity is embedded (signed) in the value itself. */
 export function createAdminSessionCookieValue(): string {
   const expiresAt = Date.now() + SESSION_TTL_MS;
   const payload = String(expiresAt);
@@ -61,8 +61,8 @@ function extractCookieValue(cookieHeader: string | null, name: string): string |
   return undefined;
 }
 
-/** Prüft, ob ein eingehender Request eine gültige Administrator-Sitzung mitbringt. Schlägt
- *  bewusst "fail closed" fehl (kein Zugriff), wenn ADMIN_SECRET nicht konfiguriert ist. */
+/** Checks whether an incoming request carries a valid administrator session. Deliberately
+ *  "fails closed" (no access) when ADMIN_SECRET is not configured. */
 export function isAdminRequest(request: Request): boolean {
   try {
     const value = extractCookieValue(request.headers.get('cookie'), ADMIN_SESSION_COOKIE);

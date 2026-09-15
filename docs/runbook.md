@@ -1,12 +1,13 @@
 # Runbook
 
-## Missbrauchsfall (illegaler Upload, Host-Provider-Anfrage)
+## Abuse case (illegal upload, hosting-provider inquiry)
 
-Die App selbst loggt bewusst nichts Personenbezogenes (keine IPs, keine User-Agents — siehe
-ADR-0001, "kein Login"-Philosophie). Im Ernstfall (z.B. Meldung/Anfrage zu einem konkreten
-Upload) sind die Cloudflare-eigenen Request-Logs die erste Anlaufstelle:
+The app itself deliberately logs nothing personally identifiable (no IPs, no user agents — see
+ADR-0001's "no login" philosophy). In an actual case (e.g. a report/inquiry about a specific
+upload), Cloudflare's own request logs are the first place to look:
 
-- Cloudflare-Dashboard → Analytics & Logs / Security → Events, gefiltert auf Zeitraum und Pfad
+- Cloudflare dashboard → Analytics & Logs / Security → Events, filtered by time range and path
   (`/api/albums/<slug>/upload`).
-- Enthält u.a. Ziel-IP des Clients, Zeitstempel, User-Agent — unabhängig vom App-Code.
-- Den betroffenen Upload danach über den [Admin-Bereich](../CONTEXT.md) manuell entfernen.
+- Includes the client's source IP, timestamp, user agent, among others — independent of the app
+  code.
+- Afterwards, remove the affected upload manually via the [admin area](../CONTEXT.md).

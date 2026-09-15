@@ -94,8 +94,8 @@ export function useUploadQueue({
               storeOwnerToken(body.id, body.ownerToken);
             }
           } catch {
-            // Antwort nicht parsebar - Upload gilt trotzdem als erfolgreich, nur ohne
-            // spätere Selbst-Löschmöglichkeit für diese Datei
+            // Response not parseable - upload still counts as successful, just without
+            // a later self-delete option for this file
           }
           dispatch({ type: 'SUCCESS', id: uploadingItem.id });
           onItemUploaded();
@@ -115,8 +115,8 @@ export function useUploadQueue({
     [slug, dispatch, onItemUploaded],
   );
 
-  // Sobald der Reducer ein Item auf "uploading" setzt: erst per Duplikat-Check (ADR-0007) prüfen,
-  // ob die Datei im Album schon existiert, bevor der eigentliche Netzwerk-Request startet.
+  // As soon as the reducer sets an item to "uploading": first check via the duplicate check
+  // (ADR-0007) whether the file already exists in the album, before starting the actual network request.
   useEffect(() => {
     const uploadingItem = state.items.find((item) => item.status === 'uploading');
     if (!uploadingItem || startedIds.current.has(uploadingItem.id)) {
@@ -144,13 +144,13 @@ export function useUploadQueue({
       .catch(() => {
         duplicateCheckAbortByItemId.current.delete(uploadingItem.id);
         if (controller.signal.aborted) return;
-        // Duplikat-Check fehlgeschlagen (z.B. Netzwerkfehler) - Upload trotzdem versuchen; die
-        // serverseitige Prüfung in der Upload-Route greift ohnehin noch einmal verbindlich.
+        // Duplicate check failed (e.g. network error) - attempt the upload anyway; the
+        // server-side check in the upload route applies authoritatively again regardless.
         startUpload(uploadingItem);
       });
   }, [state.items, slug, dispatch, startUpload]);
 
-  // Meldet einen Sammel-Toast, sobald keine Datei mehr läuft/wartet.
+  // Reports a summary toast once no file is running/pending anymore.
   useEffect(() => {
     const isActive = state.items.some(
       (item) => item.status === 'pending' || item.status === 'uploading',

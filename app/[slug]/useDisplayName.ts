@@ -13,7 +13,7 @@ export function useDisplayName() {
     try {
       stored = window.localStorage.getItem(STORAGE_KEY);
     } catch {
-      // localStorage nicht verfügbar (z.B. privater Modus) - Name gilt nur für diese Sitzung
+      // localStorage not available (e.g. private mode) - name only applies for this session
     }
 
     if (stored) {

@@ -1,3 +1,3 @@
-# Kein erzwungenes Upload-Größenlimit
+# No enforced upload size limit
 
-Nutzer teilen große Smartphone-Videos; die Zielgruppe soll sich nie über Limits Gedanken machen müssen. Wir haben entschieden, Uploads zu streamen statt zu puffern und kein anwendungsseitiges Größenlimit zu erzwingen — verfügbarer Festplattenplatz ist die einzige Grenze. Erwogen und verworfen: festes Limit (z.B. 200 MB) — hätte den Upload-Flow für die nicht-technische Zielgruppe verkompliziert; das Risiko unbegrenzten Speicherwachstums wird bewusst in Kauf genommen.
+Users share large smartphone videos; the target audience should never have to think about limits. We decided to stream uploads instead of buffering them and not enforce an application-level size limit — available disk space is the only boundary. Considered and rejected: a fixed limit (e.g. 200 MB) — would have complicated the upload flow for the non-technical target audience; the risk of unbounded storage growth is deliberately accepted.

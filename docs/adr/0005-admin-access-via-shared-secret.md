@@ -1,0 +1,3 @@
+# Admin access via a shared secret instead of Cloudflare Access
+
+The admin area (ADR-0004) needs access protection. We considered Cloudflare Access (zero-trust login in front of the app, no app code needed, but configuration lives outside the repo in the Cloudflare dashboard) and an IP allowlist (impractical without a fixed IP or VPN). We chose a shared admin secret, checked via a login page in the app and then held via a cookie — this keeps all access control inside the app code and makes it independent of the reverse proxy in front of it. Consequence: the security of the admin area depends entirely on keeping this one secret confidential; there is no separate identity check or multi-factor protection.

@@ -1,8 +1,8 @@
 'use client';
 
-// Speichert pro eigenem Upload (Mediendatei-ID -> Lösch-Token) lokal im Browser, siehe
-// "Lösch-Token" in CONTEXT.md. Rein clientseitig: der Server verifiziert das Token ohnehin bei
-// jeder Löschanfrage erneut, dieses Modul dient nur dazu, es im Browser wiederzufinden.
+// Stores, per own upload (media item id -> owner token), locally in the browser, see
+// "owner token" in CONTEXT.md. Purely client-side: the server verifies the token again on
+// every delete request regardless — this module only exists to look it back up in the browser.
 
 const STORAGE_KEY = 'quick-photo-uploader:owner-tokens';
 
@@ -21,8 +21,8 @@ export function storeOwnerToken(mediaId: string, ownerToken: string): void {
     all[mediaId] = ownerToken;
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
   } catch {
-    // localStorage nicht verfügbar (z.B. privater Modus) - dieser Upload bleibt dann nur über
-    // den Admin-Bereich löschbar
+    // localStorage not available (e.g. private mode) - this upload can then only be deleted
+    // via the admin area
   }
 }
 

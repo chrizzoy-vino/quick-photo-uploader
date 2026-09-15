@@ -1,30 +1,30 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { isAdminRequest } from '@/lib/adminAuth';
 
-// Proxy laeuft seit Next.js 16 standardmaessig mit Node.js-Runtime (kein `export const runtime`
-// moeglich/noetig) — reicht fuer node:crypto in lib/adminAuth.ts.
+// As of Next.js 16, the proxy runs on the Node.js runtime by default (no `export const runtime`
+// possible/needed) — that's enough for node:crypto in lib/adminAuth.ts.
 
 const IS_DEV = process.env.NODE_ENV === 'development';
 
-// Kein Nonce-basiertes CSP (siehe Next.js-Doku "Content Security Policy"): das würde jede Seite
-// zu dynamischem Rendering zwingen (keine statische Optimierung mehr) - für diese kleine,
-// wenig frequentierte App ohne dangerouslySetInnerHTML/Drittanbieter-Skripte unverhältnismäßig.
-// 'unsafe-inline' bei script-src ist Next.js' eigener dokumentierter Weg für Apps ohne strikten
-// Nonce-Bedarf; 'unsafe-eval' nur im Dev-Modus, weil React dafür Server-Fehler-Stacks im Browser
-// rekonstruiert (in Produktion nicht nötig).
+// No nonce-based CSP (see the Next.js docs on "Content Security Policy"): that would force
+// every page into dynamic rendering (no more static optimization) - disproportionate for this
+// small, low-traffic app with no dangerouslySetInnerHTML/third-party scripts.
+// 'unsafe-inline' on script-src is Next.js' own documented approach for apps without a strict
+// nonce requirement; 'unsafe-eval' only in dev mode, because React uses it to reconstruct
+// server error stacks in the browser (not needed in production).
 const SECURITY_HEADERS: Record<string, string> = {
   'Strict-Transport-Security': 'max-age=15552000; includeSubDomains',
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
-  // Alben und Mediendateien sind nur per geteiltem Link erreichbar, nicht zum Indexieren
-  // gedacht - als Header statt nur als <meta>, weil das auch fuer Bild-/Video-Antworten greift
-  // (dort ist kein HTML-<meta> moeglich). robots.txt (app/robots.ts) ergaenzt das fuers Crawlen.
+  // Albums and media items are only reachable via a shared link, not meant to be indexed -
+  // as a header rather than just a <meta> tag, because this also applies to image/video
+  // responses (where no HTML <meta> is possible). robots.txt (app/robots.ts) covers crawling.
   'X-Robots-Tag': 'noindex, nofollow, noarchive',
   'Content-Security-Policy': [
     "default-src 'self'",
     `script-src 'self' 'unsafe-inline'${IS_DEV ? " 'unsafe-eval'" : ''}`,
-    // 'unsafe-inline' fuer style-src: die App setzt Styles ueberwiegend als inline `style`-Attribute.
+    // 'unsafe-inline' for style-src: the app sets styles mostly via inline `style` attributes.
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "media-src 'self' blob:",
@@ -45,17 +45,17 @@ function withSecurityHeaders(response: NextResponse): NextResponse {
 
 const UPLOAD_PATH = /^\/api\/albums\/[^/]+\/upload$/;
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
-// Grosszuegig bemessen (siehe ADR-Diskussion): mehrere Gaeste koennen sich eine IP teilen
-// (gemeinsames Event-WLAN), und einzelne Gaeste laden oft viele Fotos/Videos am Stueck hoch.
+// Deliberately generous (see the ADR discussion): several guests can share one IP
+// (shared event Wi-Fi), and individual guests often upload many photos/videos in a row.
 const UPLOAD_RATE_LIMIT_MAX = 300;
 
-// Deutlich enger als das Upload-Limit: hier geht es nicht um versehentliche Kollisionen unter
-// Gaesten, sondern ums Bremsen von Brute-Force-Versuchen gegen ADMIN_SECRET.
+// Much stricter than the upload limit: this isn't about accidental collisions between
+// guests, it's about slowing down brute-force attempts against ADMIN_SECRET.
 const ADMIN_LOGIN_PATH = '/api/admin/login';
 const ADMIN_LOGIN_RATE_LIMIT_MAX = 10;
 
-// Prozesslokale Zaehler: passend fuer die Single-Instance-Homelab-Deployment dieser App, nicht
-// fuer verteiltes/Multi-Instance-Hosting gedacht.
+// Process-local counters: fine for this app's single-instance homelab deployment, not
+// intended for distributed/multi-instance hosting.
 function createRateLimiter(max: number) {
   const counters = new Map<string, { count: number; windowStart: number }>();
   return function isRateLimited(ip: string): boolean {
@@ -81,10 +81,10 @@ function clientIp(request: NextRequest): string {
   );
 }
 
-// Bewusst NICHT x-forwarded-proto: Next.js synthetisiert diesen Header selbst anhand der
-// tatsaechlichen (unverschluesselten) Socket-Verbindung, wenn er fehlt - das haette z.B. `next
-// dev` ueber http://localhost dauerhaft auf ein nicht existierendes HTTPS umgeleitet. CF-Visitor
-// wird nur von Cloudflare selbst gesetzt und spiegelt zuverlaessig das vom Client genutzte Schema.
+// Deliberately NOT x-forwarded-proto: Next.js synthesizes this header itself based on the
+// actual (unencrypted) socket connection when it's missing - that would, e.g., permanently
+// redirect `next dev` over http://localhost to a nonexistent HTTPS. CF-Visitor is only ever
+// set by Cloudflare itself and reliably reflects the scheme the client actually used.
 function isPlainHttpBehindCloudflare(request: NextRequest): boolean {
   const cfVisitor = request.headers.get('cf-visitor');
   if (!cfVisitor) return false;

@@ -96,8 +96,8 @@ export async function POST(
     partialOriginalPath = originalPath;
 
     let size = 0;
-    // Server-seitig verifizierter Hash für den Duplikat-Vergleich (ADR-0007) - unabhängig davon,
-    // was ein Client vorab per Duplikat-Check-Endpoint berechnet hat.
+    // Server-side verified hash for duplicate comparison (ADR-0007) - independent of
+    // whatever a client computed beforehand via the duplicate-check endpoint.
     const hash = createHash('sha256');
     fileStream.on('data', (chunk: Buffer) => {
       size += chunk.length;
@@ -182,9 +182,9 @@ export async function POST(
       },
     });
   } catch (error) {
-    // Verstößt gegen den Unique-Index auf (albumId, contentHash) - siehe "Duplikat" in
-    // CONTEXT.md / ADR-0007. Greift auch, wenn der clientseitige Vorab-Check das Duplikat aus
-    // einem Wettlauf zweier gleichzeitiger Uploads nicht erkannt hat.
+    // Violates the unique index on (albumId, contentHash) - see "Duplicate" in
+    // CONTEXT.md / ADR-0007. Also triggers when the client-side pre-check missed the duplicate
+    // due to a race between two concurrent uploads.
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       await rm(file.originalPath, { force: true });
       const existing = await prisma.mediaItem.findFirst({

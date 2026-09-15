@@ -1,0 +1,3 @@
+# EXIF/GPS metadata in originals is deliberately preserved
+
+Originals are stored unmodified, exactly as uploaded (see the Original definition in CONTEXT.md) — including any EXIF and GPS metadata. Even though albums are reachable publicly via link and a link could be passed on beyond its intended circle of people, we deliberately decided against automatically stripping GPS metadata from the original. Considered and rejected: stripping GPS tags when storing the original — would have broken the core promise "the original stays the original, as uploaded," and was judged unnecessary for this private use case aimed at a known circle of people.

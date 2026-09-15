@@ -1,99 +1,109 @@
 # Quick Photo Uploader
 
-Web-App, mit der man **ohne Login** schnell Fotos und Videos in ein gemeinsam genutztes Album
-hochladen und ansehen kann. Der Album-Link wird typischerweise per Messenger (z. B. WhatsApp)
-verteilt — wer den Link hat, darf hochladen und ansehen.
+A web app that lets you quickly upload and view photos and videos in a shared album, **without a
+login**. The album link is typically distributed via messenger (e.g. WhatsApp) — whoever has the
+link can upload and view.
 
 ## Features
 
-- **Kein Login nötig** — ein Album entsteht implizit mit dem ersten Upload und existiert, solange
-  es mindestens eine Mediendatei enthält.
-- **Slug-basierte Alben** — frei wählbarer, sprechender Link statt kryptischer ID (z. B.
-  `.../hochzeit-anna`).
-- **Galerie** mit Listen-/Rasteransicht und Mehrfachauswahl zum Löschen.
-- **Eigene Uploads löschen** — pro Datei wird beim Upload ein Lösch-Token im Browser hinterlegt,
-  das ausschließlich dessen Löschung erlaubt.
-- **Duplikat-Erkennung** innerhalb eines Albums per Datei-Hash.
-- **Automatische Vorschaubilder** inkl. korrekter EXIF-Rotation, HEIC-Konvertierung für die
-  Anzeige.
-- **Admin-Bereich** (`/admin`) für eine Instanz-weite Übersicht aller Alben inkl. Löschen ohne
-  Lösch-Token.
+- **No login required** — an album comes into existence implicitly with the first upload and
+  exists for as long as it contains at least one media item.
+- **Slug-based albums** — a freely chosen, readable link instead of a cryptic ID (e.g.
+  `.../wedding-anna`).
+- **Gallery** with list/grid view and multi-select for deletion.
+- **Delete your own uploads** — an owner token is stored in the browser for each file at upload
+  time, which alone permits deleting that file.
+- **Duplicate detection** within an album via file hash.
+- **Automatic thumbnails**, including correct EXIF rotation and HEIC conversion for display.
+- **Admin area** (`/admin`) for an instance-wide overview of all albums, including deletion
+  without an owner token.
 
-Begriffe wie *Album*, *Slug*, *Mediendatei* oder *Lösch-Token* sind in [CONTEXT.md](CONTEXT.md)
-verbindlich definiert.
+Terms like *album*, *slug*, *media item*, or *owner token* are formally defined in
+[CONTEXT.md](CONTEXT.md).
 
-## Tech-Stack
+## Tech stack
 
 - [Next.js 16](https://nextjs.org/) (App Router) + React 19, TypeScript
-- [Prisma](https://www.prisma.io/) mit SQLite als Datenbank
-- [sharp](https://sharp.pixelplumbing.com/) für Vorschaubilder, `heic-convert` für HEIC/HEIF
-- Dateien liegen direkt im Dateisystem (Filesystem als Source of Truth, siehe
+- [Prisma](https://www.prisma.io/) with SQLite as the database
+- [sharp](https://sharp.pixelplumbing.com/) for thumbnails, `heic-convert` for HEIC/HEIF
+- Files live directly on the filesystem (filesystem as source of truth, see
   [ADR-0002](docs/adr/0002-filesystem-is-source-of-truth.md))
 
-## Lokale Entwicklung
+## Local development
 
 ```bash
 npm install
-cp .env.example .env   # ADMIN_SECRET setzen, z.B. via `openssl rand -hex 32`
+cp .env.example .env   # set ADMIN_SECRET, e.g. via `openssl rand -hex 32`
 npm run prisma:migrate:dev
 npm run dev
 ```
 
-Die App läuft danach unter `http://localhost:3000`.
+The app then runs at `http://localhost:3000`.
 
-Weitere Skripte:
+Other scripts:
 
 ```bash
 npm run typecheck   # TypeScript
 npm run lint        # ESLint
-npm run test        # Vitest (einmalig)
+npm run test        # Vitest (single run)
 npm run test:watch  # Vitest (watch mode)
-npm run build        # Produktions-Build
+npm run build        # Production build
 ```
 
-### Umgebungsvariablen
+### Environment variables
 
-| Variable       | Beschreibung                                                                 |
-| -------------- | ----------------------------------------------------------------------------- |
-| `DATABASE_URL` | SQLite-Pfad, z. B. `file:./data/db.sqlite`                                   |
-| `STORAGE_ROOT` | Verzeichnis für Album-Dateien (Originale, Vorschaubilder, Anzeige-Varianten) |
-| `ADMIN_SECRET` | Zugangs-Secret für `/admin`. Ohne gesetzten Wert bleibt der Bereich gesperrt. |
+| Variable       | Description                                                                |
+| -------------- | --------------------------------------------------------------------------- |
+| `DATABASE_URL` | SQLite path, e.g. `file:./data/db.sqlite`                                  |
+| `STORAGE_ROOT` | Directory for album files (originals, thumbnails, display variants)        |
+| `ADMIN_SECRET` | Access secret for `/admin`. The admin area stays locked without a value.   |
 
 ## Deployment
 
-Bei jedem Push auf `main` baut die CD-Pipeline (`.github/workflows/cd.yml`) ein Image und pusht es
-nach `ghcr.io/chrizzoy-vino/quick-photo-uploader`. Deployment erfolgt darüber per Docker Compose:
+On every push to `main`, the CD pipeline (`.github/workflows/cd.yml`) builds an image and pushes
+it to `ghcr.io/chrizzoy-vino/quick-photo-uploader`. Deployment from there is via Docker Compose:
 
 ```bash
 cp docker-compose.example.yml docker-compose.yml
-# ADMIN_SECRET in docker-compose.yml eintragen
+# set ADMIN_SECRET in docker-compose.yml
 docker compose up -d
 ```
 
-Das Compose-File bindet `./data` als Volume ein — dort liegen sowohl die SQLite-Datenbank als auch
-alle Album-Dateien. Für lokale Image-Builds statt des vorgebauten GHCR-Images siehe
-`docker-compose.yml` (`build: .`).
+The compose file mounts `./data` as a volume — it holds both the SQLite database and all album
+files. For local image builds instead of the prebuilt GHCR image, see `docker-compose.yml`
+(`build: .`).
 
-Der Server erwartet TLS/HTTPS über einen vorgeschalteten Reverse Proxy bzw. Cloudflare; Sicherheits-
-Header (HSTS, CSP, `X-Robots-Tag: noindex`, …) setzt die App selbst über `proxy.ts`. Alben sind
-nicht für Suchmaschinen gedacht — siehe `app/robots.ts`.
+The server expects TLS/HTTPS to be terminated by a reverse proxy in front of it (e.g.
+Cloudflare); the app itself sets security headers (HSTS, CSP, `X-Robots-Tag: noindex`, ...) via
+`proxy.ts`. Albums are not meant to be indexed by search engines — see `app/robots.ts`.
 
-## Architektur-Entscheidungen
+## Architecture decisions
 
-Wichtige, nicht offensichtliche Design-Entscheidungen sind als ADRs dokumentiert:
+Important, non-obvious design decisions are documented as ADRs:
 
-- [0001 — Kein Login: Link gewährt vollen Album-Zugriff](docs/adr/0001-no-auth-link-grants-full-album-rights.md)
-- [0002 — Dateisystem ist Source of Truth](docs/adr/0002-filesystem-is-source-of-truth.md)
-- [0003 — Kein erzwungenes Upload-Größenlimit](docs/adr/0003-no-enforced-upload-size-limit.md)
-- [0004 — Löschrechte auf eigene Uploads beschränkt](docs/adr/0004-loeschrechte-auf-eigene-uploads-beschraenkt.md)
-- [0005 — Admin-Zugang per geteiltem Secret](docs/adr/0005-admin-zugang-per-geteiltes-secret.md)
-- [0006 — EXIF-GPS in Originalen bleibt erhalten](docs/adr/0006-exif-gps-in-originalen-bleibt-erhalten.md)
-- [0007 — Duplikat-Erkennung per clientseitigem Hash](docs/adr/0007-duplikat-erkennung-per-clientseitigem-hash.md)
+- [0001 — No login: possessing the link grants full album rights](docs/adr/0001-no-auth-link-grants-full-album-rights.md)
+- [0002 — The filesystem is the source of truth](docs/adr/0002-filesystem-is-source-of-truth.md)
+- [0003 — No enforced upload size limit](docs/adr/0003-no-enforced-upload-size-limit.md)
+- [0004 — Delete rights limited to own uploads](docs/adr/0004-delete-rights-limited-to-own-uploads.md)
+- [0005 — Admin access via a shared secret](docs/adr/0005-admin-access-via-shared-secret.md)
+- [0006 — EXIF/GPS metadata preserved in originals](docs/adr/0006-exif-gps-preserved-in-originals.md)
+- [0007 — Duplicate detection via client-side hash](docs/adr/0007-duplicate-detection-via-client-side-hash.md)
+- [0008 — MIT license chosen](docs/adr/0008-mit-license-chosen.md)
+- [0009 — Repo docs in English, product UI stays German](docs/adr/0009-repo-docs-in-english-product-ui-stays-german.md)
 
-Für den Missbrauchsfall (z. B. Anfrage zu einem illegalen Upload) siehe
+**Before self-hosting this**, please read the ADRs above — the security model is intentionally
+minimal for this app's own private, link-only use case (no auth beyond the link, no enforced
+upload size limit, GPS metadata kept in originals). Those trade-offs may not be right for your
+use case.
+
+For the abuse-handling case (e.g. a report about an illegal upload), see
 [docs/runbook.md](docs/runbook.md).
 
-## Lizenz & Impressum
+## Security
 
-Privates Homelab-Projekt. Rechtliche Hinweise siehe `/impressum` und `/datenschutz` der laufenden
-Instanz.
+To report a vulnerability, please see [SECURITY.md](SECURITY.md) — use GitHub's Private
+Vulnerability Reporting rather than a public issue.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

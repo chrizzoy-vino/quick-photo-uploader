@@ -23,9 +23,9 @@ export interface DeleteMediaResult {
   unauthorizedCount: number;
 }
 
-/** Entscheidet, ob ein Aufrufer eine bestimmte Mediendatei löschen darf — z.B. weil das
- *  mitgeschickte Lösch-Token zum gespeicherten passt, oder weil der Aufrufer Administrator ist.
- *  Default: alles erlaubt, für Aufrufer, die die Autorisierung bereits selbst geprüft haben. */
+/** Decides whether a caller may delete a given media item — e.g. because the submitted
+ *  owner token matches the stored one, or because the caller is an administrator.
+ *  Default: everything allowed, for callers that have already checked authorization themselves. */
 export type DeleteAuthorizer = (record: DeletableMediaRecord) => boolean;
 
 export async function deleteMedia(
