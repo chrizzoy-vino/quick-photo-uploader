@@ -17,6 +17,10 @@ const SECURITY_HEADERS: Record<string, string> = {
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
+  // Alben und Mediendateien sind nur per geteiltem Link erreichbar, nicht zum Indexieren
+  // gedacht - als Header statt nur als <meta>, weil das auch fuer Bild-/Video-Antworten greift
+  // (dort ist kein HTML-<meta> moeglich). robots.txt (app/robots.ts) ergaenzt das fuers Crawlen.
+  'X-Robots-Tag': 'noindex, nofollow, noarchive',
   'Content-Security-Policy': [
     "default-src 'self'",
     `script-src 'self' 'unsafe-inline'${IS_DEV ? " 'unsafe-eval'" : ''}`,
