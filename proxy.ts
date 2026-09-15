@@ -47,22 +47,31 @@ const UPLOAD_PATH = /^\/api\/albums\/[^/]+\/upload$/;
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 // Grosszuegig bemessen (siehe ADR-Diskussion): mehrere Gaeste koennen sich eine IP teilen
 // (gemeinsames Event-WLAN), und einzelne Gaeste laden oft viele Fotos/Videos am Stueck hoch.
-const RATE_LIMIT_MAX = 300;
+const UPLOAD_RATE_LIMIT_MAX = 300;
 
-// Prozesslokaler Zaehler: passend fuer die Single-Instance-Homelab-Deployment dieser App, nicht
+// Deutlich enger als das Upload-Limit: hier geht es nicht um versehentliche Kollisionen unter
+// Gaesten, sondern ums Bremsen von Brute-Force-Versuchen gegen ADMIN_SECRET.
+const ADMIN_LOGIN_PATH = '/api/admin/login';
+const ADMIN_LOGIN_RATE_LIMIT_MAX = 10;
+
+// Prozesslokale Zaehler: passend fuer die Single-Instance-Homelab-Deployment dieser App, nicht
 // fuer verteiltes/Multi-Instance-Hosting gedacht.
-const uploadCounters = new Map<string, { count: number; windowStart: number }>();
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = uploadCounters.get(ip);
-  if (!entry || now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
-    uploadCounters.set(ip, { count: 1, windowStart: now });
-    return false;
-  }
-  entry.count += 1;
-  return entry.count > RATE_LIMIT_MAX;
+function createRateLimiter(max: number) {
+  const counters = new Map<string, { count: number; windowStart: number }>();
+  return function isRateLimited(ip: string): boolean {
+    const now = Date.now();
+    const entry = counters.get(ip);
+    if (!entry || now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
+      counters.set(ip, { count: 1, windowStart: now });
+      return false;
+    }
+    entry.count += 1;
+    return entry.count > max;
+  };
 }
+
+const isUploadRateLimited = createRateLimiter(UPLOAD_RATE_LIMIT_MAX);
+const isAdminLoginRateLimited = createRateLimiter(ADMIN_LOGIN_RATE_LIMIT_MAX);
 
 function clientIp(request: NextRequest): string {
   return (
@@ -95,7 +104,19 @@ export function proxy(request: NextRequest) {
     return withSecurityHeaders(NextResponse.redirect(httpsUrl, 308));
   }
 
-  if (UPLOAD_PATH.test(pathname) && request.method === 'POST' && isRateLimited(clientIp(request))) {
+  if (
+    UPLOAD_PATH.test(pathname) &&
+    request.method === 'POST' &&
+    isUploadRateLimited(clientIp(request))
+  ) {
+    return withSecurityHeaders(NextResponse.json({ error: 'rate_limited' }, { status: 429 }));
+  }
+
+  if (
+    pathname === ADMIN_LOGIN_PATH &&
+    request.method === 'POST' &&
+    isAdminLoginRateLimited(clientIp(request))
+  ) {
     return withSecurityHeaders(NextResponse.json({ error: 'rate_limited' }, { status: 429 }));
   }
 

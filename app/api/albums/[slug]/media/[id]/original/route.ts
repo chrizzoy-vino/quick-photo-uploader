@@ -10,8 +10,8 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ slug: string; id: string }> },
 ) {
-  const { id } = await params;
-  const media = await prisma.mediaItem.findUnique({ where: { id } });
+  const { slug, id } = await params;
+  const media = await prisma.mediaItem.findFirst({ where: { id, album: { slug } } });
   if (!media) {
     return NextResponse.json({ error: 'not_found' }, { status: 404 });
   }
