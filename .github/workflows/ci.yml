@@ -16,6 +16,7 @@ jobs:
     env:
       DATABASE_URL: 'file:./data/db.sqlite'
       STORAGE_ROOT: './data/albums'
+      CONTENT_ROOT: './data/content'
     steps:
       - name: Check out code
         uses: actions/checkout@v7

@@ -4,8 +4,8 @@ services:
     ports:
       - '3000:3000'
     environment:
-      # Admin-Bereich (/admin) bleibt ohne gesetztes Secret gesperrt.
-      ADMIN_SECRET: ${ADMIN_SECRET:?Bitte ADMIN_SECRET setzen, z.B. via `openssl rand -hex 32`}
+      # The admin area (/admin) stays locked without a value set.
+      ADMIN_SECRET: ${ADMIN_SECRET:?Please set ADMIN_SECRET, e.g. via `openssl rand -hex 32`}
     volumes:
       - data:/data
     restart: unless-stopped

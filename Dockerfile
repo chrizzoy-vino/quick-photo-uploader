@@ -27,6 +27,7 @@ ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 ENV DATABASE_URL="file:/data/db.sqlite"
 ENV STORAGE_ROOT="/data/albums"
+ENV CONTENT_ROOT="/data/content"
 
 RUN groupadd --system --gid 1001 nodejs \
   && useradd --system --uid 1001 --gid nodejs nextjs \

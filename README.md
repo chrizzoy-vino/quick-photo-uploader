@@ -57,6 +57,7 @@ npm run build        # Production build
 | `DATABASE_URL` | SQLite path, e.g. `file:./data/db.sqlite`                                  |
 | `STORAGE_ROOT` | Directory for album files (originals, thumbnails, display variants)        |
 | `ADMIN_SECRET` | Access secret for `/admin`. The admin area stays locked without a value.   |
+| `CONTENT_ROOT` | Directory for optional legal-page markdown files, see below.               |
 
 ## Deployment
 
@@ -77,6 +78,17 @@ The server expects TLS/HTTPS to be terminated by a reverse proxy in front of it 
 Cloudflare); the app itself sets security headers (HSTS, CSP, `X-Robots-Tag: noindex`, ...) via
 `proxy.ts`. Albums are not meant to be indexed by search engines — see `app/robots.ts`.
 
+### Legal pages (Impressum / Datenschutz)
+
+`/impressum` and `/datenschutz` show a placeholder until you add
+`data/content/impressum.md` and `data/content/datenschutz.md` (each should start with its own
+top-level Markdown heading, e.g. `# Impressum`, since the page no longer renders one itself) —
+see [ADR-0010](docs/adr/0010-legal-pages-read-from-mounted-markdown-files.md).
+These files are never part of the repo or the built image; they live only in your `./data`
+volume on the host, alongside the database and album files. Filling them in with real,
+jurisdiction-specific content is your responsibility as the operator — this repo doesn't ship a
+template for legal text it can't write on your behalf.
+
 ## Architecture decisions
 
 Important, non-obvious design decisions are documented as ADRs:
@@ -90,6 +102,7 @@ Important, non-obvious design decisions are documented as ADRs:
 - [0007 — Duplicate detection via client-side hash](docs/adr/0007-duplicate-detection-via-client-side-hash.md)
 - [0008 — MIT license chosen](docs/adr/0008-mit-license-chosen.md)
 - [0009 — Repo docs in English, product UI stays German](docs/adr/0009-repo-docs-in-english-product-ui-stays-german.md)
+- [0010 — Legal pages read from mounted markdown files](docs/adr/0010-legal-pages-read-from-mounted-markdown-files.md)
 
 **Before self-hosting this**, please read the ADRs above — the security model is intentionally
 minimal for this app's own private, link-only use case (no auth beyond the link, no enforced

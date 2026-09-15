@@ -1,17 +1,17 @@
-# Beispiel-Compose-Datei fuer das Deployment im Homelab.
+# Example compose file for homelab deployment.
 #
-# Anders als docker-compose.yml (baut lokal aus dem Repo) laedt diese Datei
-# das fertige Image, das die CD-Pipeline (.github/workflows/cd.yml) bei jedem
-# Push auf `main` nach ghcr.io baut und pusht.
+# Unlike docker-compose.yml (builds locally from the repo), this file pulls
+# the prebuilt image that the CD pipeline (.github/workflows/cd.yml) builds
+# and pushes to ghcr.io on every push to `main`.
 #
-# Nutzung:
-#   1. Diese Datei z.B. nach docker-compose.yml kopieren (oder direkt anpassen).
-#   2. `docker compose up -d` im Zielverzeichnis ausfuehren.
+# Usage:
+#   1. Copy this file to docker-compose.yml (or edit it in place).
+#   2. Run `docker compose up -d` in the target directory.
 #
-# Falls das GHCR-Package privat ist, muss der Host vorher einmalig einloggen:
-#   docker login ghcr.io -u <github-username> -p <personal-access-token mit read:packages>
-# Alternativ das Package unter github.com/<user>/<repo>/pkgs/container/quick-photo-uploader
-# auf "Public" stellen, dann ist kein Login noetig.
+# If the GHCR package is private, the host needs to log in once beforehand:
+#   docker login ghcr.io -u <github-username> -p <personal-access-token with read:packages>
+# Alternatively, set the package to "Public" under
+# github.com/<user>/<repo>/pkgs/container/quick-photo-uploader - then no login is needed.
 
 services:
   quick-photo-uploader:
@@ -21,18 +21,19 @@ services:
     ports:
       - '3000:3000'
     environment:
-      # Zugangs-Secret fuer den Admin-Bereich (/admin) - langer, zufaelliger Wert, z.B. via
-      # `openssl rand -hex 32` erzeugen und hier (oder in einer .env-Datei daneben) eintragen.
-      # Ohne gesetztes Secret bleibt der Admin-Bereich gesperrt.
+      # Access secret for the admin area (/admin) - a long, random value, e.g. generated via
+      # `openssl rand -hex 32`, set here (or in a .env file next to this one).
+      # Without a value set, the admin area stays locked.
       ADMIN_SECRET: "changeme"
     volumes:
-      # Enthaelt sowohl die SQLite-Datenbank als auch die Album-Dateien
-      # (Originale, Vorschaubilder, konvertierte Anzeige-Varianten).
+      # Holds the SQLite database, the album files (originals, thumbnails, converted display
+      # variants), and optionally ./data/content/{impressum,datenschutz}.md - operator-provided
+      # legal pages, read at runtime (see ADR-0010). Without those files, /impressum and
+      # /datenschutz show a placeholder instead of real content.
       - ./data:/data
-    # Optional: feste Version statt `latest` verwenden, sobald es Git-Tags
-    # (z.B. v1.0.0) gibt:
+    # Optional: use a fixed version instead of `latest` once there are Git tags
+    # (e.g. v1.0.0):
     # image: ghcr.io/chrizzoy-vino/quick-photo-uploader:1.0.0
     #
-    # Optional: falls ein Reverse Proxy (Traefik, nginx, Caddy, ...) im
-    # Homelab laeuft, hier passende Labels/Netzwerke ergaenzen und ports
-    # entfernen.
+    # Optional: if a reverse proxy (Traefik, nginx, Caddy, ...) runs in the
+    # homelab, add matching labels/networks here and remove ports.
