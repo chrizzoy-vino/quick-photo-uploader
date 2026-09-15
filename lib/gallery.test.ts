@@ -6,7 +6,7 @@ function makeMedia(overrides: Partial<MediaRecord> & { id: string }): MediaRecor
     filename: 'file.jpg',
     type: 'PHOTO',
     size: 100,
-    uploaderName: 'Fröhlicher Pinguin',
+    uploaderName: 'Happy Penguin',
     originalPath: `/albums/test/original/${overrides.id}.jpg`,
     displayPath: `/albums/test/display/${overrides.id}.jpg`,
     thumbnailPath: null,

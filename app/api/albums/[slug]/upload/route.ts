@@ -234,7 +234,7 @@ async function processMediaInBackground(slug: string, mediaId: string, file: Upl
       }
     }
   } catch (error) {
-    console.warn(`Konnte Anzeige-Version für ${mediaId} nicht erzeugen:`, error);
+    console.warn(`Could not generate display version for ${mediaId}:`, error);
     displayPath = file.originalPath;
   }
 
@@ -245,7 +245,7 @@ async function processMediaInBackground(slug: string, mediaId: string, file: Upl
       await createThumbnailForVideo(file.originalPath, thumbnailPath);
     }
   } catch (error) {
-    console.warn(`Konnte Vorschaubild für ${mediaId} nicht erzeugen:`, error);
+    console.warn(`Could not generate thumbnail for ${mediaId}:`, error);
     await prisma.mediaItem.update({ where: { id: mediaId }, data: { displayPath } }).catch(() => undefined);
     return;
   }

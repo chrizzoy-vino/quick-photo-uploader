@@ -6,9 +6,9 @@ export interface DuplicateInfo {
   uploaderName: string;
 }
 
-// Clientseitiger Vorab-Check vor dem eigentlichen Upload (ADR-0007, "Duplikat" in CONTEXT.md) -
-// spart die Übertragung der ganzen Datei, wenn sie im Album schon existiert. Nur eine
-// Optimierung: die Upload-Route verifiziert den Hash serverseitig ohnehin noch einmal.
+// Client-side pre-check before the actual upload (ADR-0007, "Duplicate" in CONTEXT.md) - saves
+// transferring the whole file if it already exists in the album. Just an optimization: the
+// upload route verifies the hash server-side again regardless.
 export async function checkForDuplicate(
   slug: string,
   file: File,
