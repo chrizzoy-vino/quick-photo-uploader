@@ -3,7 +3,7 @@
 ## Supported versions
 
 This is a small, self-hosted, solo-maintained project. There's no versioned support matrix —
-only the `latest` image built from `main` (see [README](README.md#deployment)) is supported.
+only the most recent release (`latest` tag, see [README](README.md#deployment)) is supported.
 If you're running an older tag, please update before reporting an issue.
 
 ## Reporting a vulnerability
