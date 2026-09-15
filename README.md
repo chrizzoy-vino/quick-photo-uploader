@@ -64,8 +64,11 @@ npm run build        # Production build
 
 ## Deployment
 
-On every push to `main`, the CD pipeline (`.github/workflows/cd.yml`) builds an image and pushes
-it to `ghcr.io/chrizzoy-vino/quick-photo-uploader`. Deployment from there is via Docker Compose:
+The CD pipeline (`.github/workflows/cd.yml`) builds an image and pushes it to
+`ghcr.io/chrizzoy-vino/quick-photo-uploader`: every push to `main` produces an `edge` snapshot,
+while pushing a `vX.Y.Z` git tag (via `npm version patch|minor|major`) cuts a release, tagged
+`latest`/`vX.Y.Z`/`X.Y` and published as a GitHub Release (see ADR-0012). Deployment from there is
+via Docker Compose:
 
 ```bash
 cp docker-compose.example.yml docker-compose.yml

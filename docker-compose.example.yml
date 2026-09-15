@@ -2,7 +2,9 @@
 #
 # Unlike docker-compose.yml (builds locally from the repo), this file pulls
 # the prebuilt image that the CD pipeline (.github/workflows/cd.yml) builds
-# and pushes to ghcr.io on every push to `main`.
+# and pushes to ghcr.io. `latest` always points at the most recent tagged
+# release (see ADR-0012) - not at whatever is currently on `main`. For the
+# latest unreleased `main` snapshot, use the `edge` tag instead.
 #
 # Usage:
 #   1. Copy this file to docker-compose.yml (or edit it in place).
@@ -31,9 +33,9 @@ services:
       # legal pages, read at runtime (see ADR-0010). Without those files, /impressum and
       # /datenschutz show a placeholder instead of real content.
       - ./data:/data
-    # Optional: use a fixed version instead of `latest` once there are Git tags
-    # (e.g. v1.0.0):
-    # image: ghcr.io/chrizzoy-vino/quick-photo-uploader:1.0.0
+    # Optional: pin to a specific release instead of always tracking the
+    # newest one:
+    # image: ghcr.io/chrizzoy-vino/quick-photo-uploader:0.1.0
     #
     # Optional: if a reverse proxy (Traefik, nginx, Caddy, ...) runs in the
     # homelab, add matching labels/networks here and remove ports.
