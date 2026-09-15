@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import type { CSSProperties } from 'react';
 import { useEffect, useRef } from 'react';
 import type { ApiMediaItem } from './types';
@@ -15,6 +16,7 @@ interface LightboxProps {
 const SWIPE_THRESHOLD = 50;
 
 export function Lightbox({ slug, items, index, onClose, onNavigate }: LightboxProps) {
+  const t = useTranslations('Lightbox');
   const item = items[index];
   const touchStartX = useRef<number | null>(null);
 
@@ -60,7 +62,7 @@ export function Lightbox({ slug, items, index, onClose, onNavigate }: LightboxPr
       <button
         type="button"
         onClick={onClose}
-        aria-label="Schließen"
+        aria-label={t('close')}
         style={closeButtonStyle}
       >
         ✕
@@ -70,7 +72,7 @@ export function Lightbox({ slug, items, index, onClose, onNavigate }: LightboxPr
         href={originalUrl}
         download
         style={{ ...navButtonStyle, right: 16, left: 'auto', top: 16, bottom: 'auto', textDecoration: 'none' }}
-        aria-label="Original herunterladen"
+        aria-label={t('downloadOriginal')}
       >
         ⬇︎
       </a>
@@ -79,7 +81,7 @@ export function Lightbox({ slug, items, index, onClose, onNavigate }: LightboxPr
         <button
           type="button"
           onClick={() => onNavigate(index - 1)}
-          aria-label="Vorheriges"
+          aria-label={t('previous')}
           style={{ ...navButtonStyle, left: 8 }}
         >
           ‹
@@ -90,7 +92,7 @@ export function Lightbox({ slug, items, index, onClose, onNavigate }: LightboxPr
         <button
           type="button"
           onClick={() => onNavigate(index + 1)}
-          aria-label="Nächstes"
+          aria-label={t('next')}
           style={{ ...navButtonStyle, right: 8 }}
         >
           ›

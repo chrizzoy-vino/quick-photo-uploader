@@ -1,0 +1,65 @@
+{
+  "Layout": {
+    "description": "Fotos und Videos schnell in ein gemeinsames Album hochladen."
+  },
+  "Manifest": {
+    "description": "Fotos und Videos schnell in ein gemeinsames Album hochladen."
+  },
+  "Home": {
+    "subtitle": "Öffne einen Album-Link (z. B. aus WhatsApp), um Fotos und Videos hochzuladen und anzusehen.",
+    "impressumLink": "Impressum",
+    "datenschutzLink": "Datenschutz"
+  },
+  "LegalPlaceholder": {
+    "impressumTitle": "Impressum",
+    "impressumBody": "Platzhalter — hier fehlen noch die gesetzlich vorgeschriebenen Angaben (u. a. Name, Anschrift und Kontaktmöglichkeit des Betreibers gemäß § 5 DDG). Bitte vor produktivem, über den privaten Kreis hinausgehendem Betrieb ausfüllen.",
+    "datenschutzTitle": "Datenschutzerklärung",
+    "datenschutzBody": "Platzhalter — hier fehlt noch eine vollständige Datenschutzerklärung gemäß DSGVO (u. a. welche Daten bei Upload/Nutzung verarbeitet werden, zu welchem Zweck, wie lange und wer Verantwortlicher ist). Bitte vor produktivem, über den privaten Kreis hinausgehendem Betrieb ausfüllen."
+  },
+  "LanguageSwitcher": {
+    "switchToGerman": "Zu Deutsch wechseln",
+    "switchToEnglish": "Zu Englisch wechseln"
+  },
+  "Album": {
+    "sortNewest": "Neueste zuerst",
+    "sortFilename": "Dateiname",
+    "sortType": "Typ",
+    "sortSize": "Größe",
+    "viewList": "☰ Liste",
+    "viewGrid": "▦ Raster",
+    "selectedCount": "{count} ausgewählt",
+    "delete": "🗑️ Löschen",
+    "cancel": "Abbrechen",
+    "emptyTitle": "Noch keine Fotos oder Videos hier.",
+    "emptyHint": "Lade die ersten über den Button unten hoch.",
+    "uploading": "Lädt hoch… {settled}/{total}",
+    "uploadButton": "📤 Fotos/Videos hochladen",
+    "onlyOwnUploadsDeletable": "Nur eigene Uploads können gelöscht werden.",
+    "galleryLoadFailed": "Galerie konnte nicht geladen werden.",
+    "moreMediaLoadFailed": "Weitere Medien konnten nicht geladen werden.",
+    "deleteFailed": "Löschen fehlgeschlagen.",
+    "allUploadsSucceeded": "Hat alles geklappt!",
+    "uploadsSummary": "{succeeded} von {total} hochgeladen, {failed} fehlgeschlagen",
+    "retry": "Erneut versuchen"
+  },
+  "ConfirmDelete": {
+    "single": "Dieses Foto/Video wirklich löschen?",
+    "multiple": "Diese {count} Fotos/Videos wirklich löschen?",
+    "cancel": "Abbrechen",
+    "delete": "Löschen"
+  },
+  "Lightbox": {
+    "close": "Schließen",
+    "downloadOriginal": "Original herunterladen",
+    "previous": "Vorheriges",
+    "next": "Nächstes"
+  },
+  "Upload": {
+    "networkError": "Netzwerkfehler",
+    "unsupportedFileType": "Dateityp wird nicht unterstützt",
+    "invalidAlbumName": "Ungültiger Album-Name",
+    "alreadyUploadedBy": "Bereits hochgeladen von {name}",
+    "alreadyUploaded": "Bereits hochgeladen",
+    "uploadFailed": "Upload fehlgeschlagen"
+  }
+}

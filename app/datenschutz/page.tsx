@@ -1,9 +1,10 @@
+import { getTranslations } from 'next-intl/server';
 import { readLegalPageHtml } from '@/lib/legalContent';
 
 export const dynamic = 'force-dynamic';
 
 export default async function DatenschutzPage() {
-  const html = await readLegalPageHtml('datenschutz.md');
+  const [html, t] = await Promise.all([readLegalPageHtml('datenschutz.md'), getTranslations('LegalPlaceholder')]);
 
   return (
     <main style={{ maxWidth: '640px', margin: '0 auto', padding: '32px 16px', lineHeight: 1.6 }}>
@@ -11,13 +12,8 @@ export default async function DatenschutzPage() {
         <div dangerouslySetInnerHTML={{ __html: html }} />
       ) : (
         <>
-          <h1 style={{ fontSize: '1.3rem' }}>Datenschutzerklärung</h1>
-          <p style={{ color: 'var(--color-text-muted)' }}>
-            Platzhalter — hier fehlt noch eine vollständige Datenschutzerklärung gemäß DSGVO
-            (u.&nbsp;a. welche Daten bei Upload/Nutzung verarbeitet werden, zu welchem Zweck, wie
-            lange und wer Verantwortlicher ist). Bitte vor produktivem, über den privaten Kreis
-            hinausgehendem Betrieb ausfüllen.
-          </p>
+          <h1 style={{ fontSize: '1.3rem' }}>{t('datenschutzTitle')}</h1>
+          <p style={{ color: 'var(--color-text-muted)' }}>{t('datenschutzBody')}</p>
         </>
       )}
     </main>

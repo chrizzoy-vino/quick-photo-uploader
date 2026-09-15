@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   createEmptyUploadQueueState,
@@ -32,6 +33,7 @@ export function useUploadQueue({
   onItemUploaded,
   onAllSettled,
 }: UseUploadQueueOptions) {
+  const t = useTranslations('Upload');
   const [state, setState] = useState<UploadQueueState>(createEmptyUploadQueueState());
   const startedIds = useRef(new Set<string>());
   const xhrByItemId = useRef(new Map<string, XMLHttpRequest>());
@@ -100,19 +102,19 @@ export function useUploadQueue({
           dispatch({ type: 'SUCCESS', id: uploadingItem.id });
           onItemUploaded();
         } else {
-          dispatch({ type: 'FAILURE', id: uploadingItem.id, error: describeUploadError(xhr) });
+          dispatch({ type: 'FAILURE', id: uploadingItem.id, error: describeUploadError(xhr, t) });
         }
       };
       xhr.onerror = () => {
         xhrByItemId.current.delete(uploadingItem.id);
-        dispatch({ type: 'FAILURE', id: uploadingItem.id, error: 'Netzwerkfehler' });
+        dispatch({ type: 'FAILURE', id: uploadingItem.id, error: t('networkError') });
       };
       xhr.onabort = () => {
         xhrByItemId.current.delete(uploadingItem.id);
       };
       xhr.send(formData);
     },
-    [slug, dispatch, onItemUploaded],
+    [slug, dispatch, onItemUploaded, t],
   );
 
   // As soon as the reducer sets an item to "uploading": first check via the duplicate check
@@ -135,7 +137,7 @@ export function useUploadQueue({
           dispatch({
             type: 'FAILURE',
             id: uploadingItem.id,
-            error: `Bereits hochgeladen von ${duplicate.uploaderName}`,
+            error: t('alreadyUploadedBy', { name: duplicate.uploaderName }),
           });
           return;
         }
@@ -148,7 +150,7 @@ export function useUploadQueue({
         // server-side check in the upload route applies authoritatively again regardless.
         startUpload(uploadingItem);
       });
-  }, [state.items, slug, dispatch, startUpload]);
+  }, [state.items, slug, dispatch, startUpload, t]);
 
   // Reports a summary toast once no file is running/pending anymore.
   useEffect(() => {
@@ -174,24 +176,27 @@ export function useUploadQueue({
   return { state, enqueue, cancel, retryFailed };
 }
 
-function describeUploadError(xhr: XMLHttpRequest): string {
+function describeUploadError(
+  xhr: XMLHttpRequest,
+  t: (key: string, values?: Record<string, string | number>) => string,
+): string {
   try {
     const body = JSON.parse(xhr.responseText) as { error?: string; uploaderName?: string };
     switch (body.error) {
       case 'unsupported_file_type':
-        return 'Dateityp wird nicht unterstützt';
+        return t('unsupportedFileType');
       case 'invalid_length':
       case 'invalid_chars':
       case 'reserved':
-        return 'Ungültiger Album-Name';
+        return t('invalidAlbumName');
       case 'duplicate':
         return body.uploaderName
-          ? `Bereits hochgeladen von ${body.uploaderName}`
-          : 'Bereits hochgeladen';
+          ? t('alreadyUploadedBy', { name: body.uploaderName })
+          : t('alreadyUploaded');
       default:
-        return 'Upload fehlgeschlagen';
+        return t('uploadFailed');
     }
   } catch {
-    return 'Upload fehlgeschlagen';
+    return t('uploadFailed');
   }
 }

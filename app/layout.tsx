@@ -1,17 +1,31 @@
 import type { Metadata } from 'next';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
+import { GlobalLanguageSwitcher } from '@/components/GlobalLanguageSwitcher';
 import './globals.css';
 
-export const metadata: Metadata = {
-  title: 'Quick Photo Uploader',
-  description: 'Fotos und Videos schnell in ein gemeinsames Album hochladen.',
-  manifest: '/manifest.webmanifest',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('Layout');
+  return {
+    title: 'Quick Photo Uploader',
+    description: t('description'),
+    manifest: '/manifest.webmanifest',
+  };
+}
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="de">
-      <body>{children}</body>
+    <html lang={locale}>
+      <body>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <GlobalLanguageSwitcher />
+          {children}
+        </NextIntlClientProvider>
+      </body>
     </html>
   );
 }

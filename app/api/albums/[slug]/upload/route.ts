@@ -156,7 +156,7 @@ export async function POST(
   }
 
   const file = uploadedFile as UploadedFile;
-  const uploaderName = sanitizeDisplayName(uploaderNameField, 'Anonym');
+  const uploaderName = sanitizeDisplayName(uploaderNameField, 'Anonymous');
   const ownerToken = randomUUID();
 
   const album = await prisma.album.upsert({

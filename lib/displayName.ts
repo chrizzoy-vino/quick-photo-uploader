@@ -1,34 +1,42 @@
-const ADJECTIVES = [
-  'Fröhlicher',
-  'Flinker',
-  'Mutiger',
-  'Schusseliger',
-  'Neugieriger',
-  'Verschlafener',
-  'Wilder',
-  'Listiger',
-  'Glücklicher',
-  'Tollpatschiger',
-];
+import type { Locale } from './locale';
 
-const ANIMALS = [
-  'Pinguin',
-  'Waschbär',
-  'Otter',
-  'Igel',
-  'Flamingo',
-  'Faultier',
-  'Dachs',
-  'Eichhörnchen',
-  'Koala',
-  'Erdmännchen',
-];
+const ADJECTIVES: Record<Locale, string[]> = {
+  en: [
+    'Happy',
+    'Quick',
+    'Brave',
+    'Clumsy',
+    'Curious',
+    'Sleepy',
+    'Wild',
+    'Sly',
+    'Lucky',
+    'Goofy',
+  ],
+  de: [
+    'Fröhlicher',
+    'Flinker',
+    'Mutiger',
+    'Schusseliger',
+    'Neugieriger',
+    'Verschlafener',
+    'Wilder',
+    'Listiger',
+    'Glücklicher',
+    'Tollpatschiger',
+  ],
+};
+
+const ANIMALS: Record<Locale, string[]> = {
+  en: ['Penguin', 'Raccoon', 'Otter', 'Hedgehog', 'Flamingo', 'Sloth', 'Badger', 'Squirrel', 'Koala', 'Meerkat'],
+  de: ['Pinguin', 'Waschbär', 'Otter', 'Igel', 'Flamingo', 'Faultier', 'Dachs', 'Eichhörnchen', 'Koala', 'Erdmännchen'],
+};
 
 const MAX_DISPLAY_NAME_LENGTH = 30;
 
-export function generateRandomDisplayName(random: () => number = Math.random): string {
-  const adjective = ADJECTIVES[Math.floor(random() * ADJECTIVES.length)];
-  const animal = ANIMALS[Math.floor(random() * ANIMALS.length)];
+export function generateRandomDisplayName(random: () => number = Math.random, locale: Locale = 'en'): string {
+  const adjective = ADJECTIVES[locale][Math.floor(random() * ADJECTIVES[locale].length)];
+  const animal = ANIMALS[locale][Math.floor(random() * ANIMALS[locale].length)];
   return `${adjective} ${animal}`;
 }
 

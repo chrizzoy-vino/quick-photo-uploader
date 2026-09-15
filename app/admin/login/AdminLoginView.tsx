@@ -18,12 +18,12 @@ export function AdminLoginView() {
         body: JSON.stringify({ secret }),
       });
       if (!res.ok) {
-        setError('Falsches Admin-Secret.');
+        setError('Incorrect admin secret.');
         return;
       }
       window.location.href = '/admin';
     } catch {
-      setError('Anmeldung fehlgeschlagen.');
+      setError('Login failed.');
     } finally {
       setSubmitting(false);
     }
@@ -41,12 +41,12 @@ export function AdminLoginView() {
         gap: '16px',
       }}
     >
-      <h1 style={{ fontSize: '1.2rem', margin: 0 }}>Admin-Anmeldung</h1>
+      <h1 style={{ fontSize: '1.2rem', margin: 0 }}>Admin login</h1>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', maxWidth: '280px' }}>
         <input
           type="password"
           autoFocus
-          placeholder="Admin-Secret"
+          placeholder="Admin secret"
           value={secret}
           onChange={(event) => setSecret(event.target.value)}
           style={{
@@ -73,7 +73,7 @@ export function AdminLoginView() {
             cursor: 'pointer',
           }}
         >
-          Anmelden
+          Log in
         </button>
       </form>
     </main>

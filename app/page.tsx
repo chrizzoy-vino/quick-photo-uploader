@@ -1,4 +1,8 @@
-export default function HomePage() {
+import { getTranslations } from 'next-intl/server';
+
+export default async function HomePage() {
+  const t = await getTranslations('Home');
+
   return (
     <main
       style={{
@@ -13,17 +17,14 @@ export default function HomePage() {
       }}
     >
       <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Quick Photo Uploader</h1>
-      <p style={{ color: 'var(--color-text-muted)', maxWidth: '32ch', margin: 0 }}>
-        Öffne einen Album-Link (z.&nbsp;B. aus WhatsApp), um Fotos und Videos hochzuladen und
-        anzusehen.
-      </p>
+      <p style={{ color: 'var(--color-text-muted)', maxWidth: '32ch', margin: 0 }}>{t('subtitle')}</p>
       <footer style={{ marginTop: '24px', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
         <a href="/impressum" style={{ color: 'inherit' }}>
-          Impressum
+          {t('impressumLink')}
         </a>
         {' · '}
         <a href="/datenschutz" style={{ color: 'inherit' }}>
-          Datenschutz
+          {t('datenschutzLink')}
         </a>
       </footer>
     </main>

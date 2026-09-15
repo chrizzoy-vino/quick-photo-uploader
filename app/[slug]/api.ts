@@ -22,7 +22,7 @@ export async function fetchMediaPage(
     cache: 'no-store',
   });
   if (!res.ok) {
-    throw new Error('Galerie konnte nicht geladen werden.');
+    throw new Error('Failed to load the gallery.');
   }
   return res.json();
 }
@@ -38,7 +38,7 @@ export async function deleteMediaItems(
     body: JSON.stringify({ ids, ownerTokens }),
   });
   if (!res.ok) {
-    throw new Error('Löschen fehlgeschlagen.');
+    throw new Error('Delete failed.');
   }
   return res.json();
 }

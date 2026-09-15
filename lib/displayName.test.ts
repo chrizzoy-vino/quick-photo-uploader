@@ -13,6 +13,14 @@ describe('generateRandomDisplayName', () => {
     const second = generateRandomDisplayName(() => 0.999);
     expect(first).not.toEqual(second);
   });
+
+  it('defaults to English word lists', () => {
+    expect(generateRandomDisplayName(() => 0)).toBe('Happy Penguin');
+  });
+
+  it('uses German word lists when given the de locale', () => {
+    expect(generateRandomDisplayName(() => 0, 'de')).toBe('Fröhlicher Pinguin');
+  });
 });
 
 describe('sanitizeDisplayName', () => {

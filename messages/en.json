@@ -1,0 +1,65 @@
+{
+  "Layout": {
+    "description": "Quickly upload photos and videos to a shared album."
+  },
+  "Manifest": {
+    "description": "Quickly upload photos and videos to a shared album."
+  },
+  "Home": {
+    "subtitle": "Open an album link (e.g. from WhatsApp) to upload and view photos and videos.",
+    "impressumLink": "Imprint",
+    "datenschutzLink": "Privacy Policy"
+  },
+  "LegalPlaceholder": {
+    "impressumTitle": "Imprint",
+    "impressumBody": "Placeholder — the legally required information (e.g. the operator's name, address, and contact details per Sec. 5 DDG) is still missing here. Please fill this in before operating beyond a private circle.",
+    "datenschutzTitle": "Privacy Policy",
+    "datenschutzBody": "Placeholder — a complete privacy policy under the GDPR is still missing here (e.g. what data is processed on upload/use, for what purpose, for how long, and who is responsible). Please fill this in before operating beyond a private circle."
+  },
+  "LanguageSwitcher": {
+    "switchToGerman": "Switch to German",
+    "switchToEnglish": "Switch to English"
+  },
+  "Album": {
+    "sortNewest": "Newest first",
+    "sortFilename": "Filename",
+    "sortType": "Type",
+    "sortSize": "Size",
+    "viewList": "☰ List",
+    "viewGrid": "▦ Grid",
+    "selectedCount": "{count} selected",
+    "delete": "🗑️ Delete",
+    "cancel": "Cancel",
+    "emptyTitle": "No photos or videos here yet.",
+    "emptyHint": "Upload the first ones using the button below.",
+    "uploading": "Uploading… {settled}/{total}",
+    "uploadButton": "📤 Upload photos/videos",
+    "onlyOwnUploadsDeletable": "Only your own uploads can be deleted.",
+    "galleryLoadFailed": "Couldn't load the gallery.",
+    "moreMediaLoadFailed": "Couldn't load more media.",
+    "deleteFailed": "Delete failed.",
+    "allUploadsSucceeded": "All done!",
+    "uploadsSummary": "{succeeded} of {total} uploaded, {failed} failed",
+    "retry": "Try again"
+  },
+  "ConfirmDelete": {
+    "single": "Really delete this photo/video?",
+    "multiple": "Really delete these {count} photos/videos?",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  "Lightbox": {
+    "close": "Close",
+    "downloadOriginal": "Download original",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "Upload": {
+    "networkError": "Network error",
+    "unsupportedFileType": "File type not supported",
+    "invalidAlbumName": "Invalid album name",
+    "alreadyUploadedBy": "Already uploaded by {name}",
+    "alreadyUploaded": "Already uploaded",
+    "uploadFailed": "Upload failed"
+  }
+}

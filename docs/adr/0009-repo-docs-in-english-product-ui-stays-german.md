@@ -1,3 +1,5 @@
+> **Superseded by [ADR-0011](0011-multilingual-ui-english-default-german-optional.md):** the product UI is no longer German-only — it's now bilingual (English default, German switchable). The reasoning below about the *repo/docs* layer staying English still holds; only the "product UI stays German" conclusion changed.
+
 # Repo docs translated to English, product UI stays German
 
 When making the repository public, we translated the developer-facing surface — README, code comments, ADRs, CI workflow labels — to English. We deliberately did not translate the actual product UI (what end users see: the homepage, album view, error messages, Impressum/Datenschutz) into English; it stays German. ADR-0001 defines the target audience as not very technical, with albums shared via WhatsApp — a recognizably German-speaking user base. Considered and rejected: translating the UI as well (would have changed the actual product for its real audience, something nobody asked for and that this repo-visibility change doesn't require) and full bilingual/i18n support (unnecessary engineering effort for a private-circle app with a single, known-language audience).

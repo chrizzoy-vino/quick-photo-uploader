@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 interface ConfirmDeleteDialogProps {
   count: number;
   onCancel: () => void;
@@ -7,6 +9,8 @@ interface ConfirmDeleteDialogProps {
 }
 
 export function ConfirmDeleteDialog({ count, onCancel, onConfirm }: ConfirmDeleteDialogProps) {
+  const t = useTranslations('ConfirmDelete');
+
   return (
     <div
       role="alertdialog"
@@ -32,9 +36,7 @@ export function ConfirmDeleteDialog({ count, onCancel, onConfirm }: ConfirmDelet
         }}
       >
         <p style={{ margin: '0 0 16px', fontSize: '0.95rem' }}>
-          {count === 1
-            ? 'Dieses Foto/Video wirklich löschen?'
-            : `Diese ${count} Fotos/Videos wirklich löschen?`}
+          {count === 1 ? t('single') : t('multiple', { count })}
         </p>
         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
           <button
@@ -49,7 +51,7 @@ export function ConfirmDeleteDialog({ count, onCancel, onConfirm }: ConfirmDelet
               cursor: 'pointer',
             }}
           >
-            Abbrechen
+            {t('cancel')}
           </button>
           <button
             type="button"
@@ -64,7 +66,7 @@ export function ConfirmDeleteDialog({ count, onCancel, onConfirm }: ConfirmDelet
               fontWeight: 600,
             }}
           >
-            Löschen
+            {t('delete')}
           </button>
         </div>
       </div>

@@ -1,11 +1,14 @@
 'use client';
 
+import { useLocale } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { generateRandomDisplayName, sanitizeDisplayName } from '@/lib/displayName';
+import type { Locale } from '@/lib/locale';
 
 const STORAGE_KEY = 'quick-photo-uploader:display-name';
 
 export function useDisplayName() {
+  const locale = useLocale() as Locale;
   const [displayName, setDisplayNameState] = useState<string>('');
 
   useEffect(() => {
@@ -21,14 +24,14 @@ export function useDisplayName() {
       return;
     }
 
-    const generated = generateRandomDisplayName();
+    const generated = generateRandomDisplayName(Math.random, locale);
     setDisplayNameState(generated);
     try {
       window.localStorage.setItem(STORAGE_KEY, generated);
     } catch {
       // ignore
     }
-  }, []);
+  }, [locale]);
 
   const setDisplayName = useCallback((input: string) => {
     setDisplayNameState((current) => {

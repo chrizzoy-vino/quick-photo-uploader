@@ -17,6 +17,8 @@ link can upload and view.
 - **Automatic thumbnails**, including correct EXIF rotation and HEIC conversion for display.
 - **Admin area** (`/admin`) for an instance-wide overview of all albums, including deletion
   without an owner token.
+- **Bilingual UI** (English default, German switchable via the 🌐 icon) — see
+  [ADR-0011](docs/adr/0011-multilingual-ui-english-default-german-optional.md).
 
 Terms like *album*, *slug*, *media item*, or *owner token* are formally defined in
 [CONTEXT.md](CONTEXT.md).
@@ -26,6 +28,7 @@ Terms like *album*, *slug*, *media item*, or *owner token* are formally defined 
 - [Next.js 16](https://nextjs.org/) (App Router) + React 19, TypeScript
 - [Prisma](https://www.prisma.io/) with SQLite as the database
 - [sharp](https://sharp.pixelplumbing.com/) for thumbnails, `heic-convert` for HEIC/HEIF
+- [next-intl](https://next-intl.dev/) for the bilingual UI (message files under `messages/`)
 - Files live directly on the filesystem (filesystem as source of truth, see
   [ADR-0002](docs/adr/0002-filesystem-is-source-of-truth.md))
 
@@ -103,6 +106,7 @@ Important, non-obvious design decisions are documented as ADRs:
 - [0008 — MIT license chosen](docs/adr/0008-mit-license-chosen.md)
 - [0009 — Repo docs in English, product UI stays German](docs/adr/0009-repo-docs-in-english-product-ui-stays-german.md)
 - [0010 — Legal pages read from mounted markdown files](docs/adr/0010-legal-pages-read-from-mounted-markdown-files.md)
+- [0011 — Multilingual UI: English default/fallback, German switchable](docs/adr/0011-multilingual-ui-english-default-german-optional.md)
 
 **Before self-hosting this**, please read the ADRs above — the security model is intentionally
 minimal for this app's own private, link-only use case (no auth beyond the link, no enforced

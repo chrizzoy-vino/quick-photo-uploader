@@ -26,7 +26,7 @@ export function AdminView() {
       const data = (await res.json()) as { albums: AdminAlbum[] };
       setAlbums(data.albums);
     } catch {
-      setError('Alben konnten nicht geladen werden.');
+      setError('Could not load albums.');
     }
   }, []);
 
@@ -37,7 +37,7 @@ export function AdminView() {
   const handleDelete = async (slug: string) => {
     if (
       !window.confirm(
-        `Album "${slug}" mit allen Mediendateien unwiderruflich löschen? Das kann nicht rückgängig gemacht werden.`,
+        `Permanently delete album "${slug}" and all its media items? This cannot be undone.`,
       )
     ) {
       return;
@@ -49,7 +49,7 @@ export function AdminView() {
       if (!res.ok) throw new Error('delete_failed');
       await load();
     } catch {
-      setError(`Album "${slug}" konnte nicht gelöscht werden.`);
+      setError(`Could not delete album "${slug}".`);
     } finally {
       setPendingSlug(null);
     }
@@ -63,9 +63,9 @@ export function AdminView() {
   return (
     <main style={{ maxWidth: '860px', margin: '0 auto', padding: '24px 16px 64px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h1 style={{ fontSize: '1.3rem', margin: 0 }}>Admin-Bereich</h1>
+        <h1 style={{ fontSize: '1.3rem', margin: 0 }}>Admin area</h1>
         <button type="button" onClick={handleLogout} style={secondaryButtonStyle}>
-          Abmelden
+          Log out
         </button>
       </div>
 
@@ -74,18 +74,18 @@ export function AdminView() {
       ) : null}
 
       {albums === null ? (
-        <p style={{ color: 'var(--color-text-muted)' }}>Lädt…</p>
+        <p style={{ color: 'var(--color-text-muted)' }}>Loading…</p>
       ) : albums.length === 0 ? (
-        <p style={{ color: 'var(--color-text-muted)' }}>Aktuell existieren keine Alben.</p>
+        <p style={{ color: 'var(--color-text-muted)' }}>No albums exist yet.</p>
       ) : (
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
             <thead>
               <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--color-border)' }}>
                 <th style={cellStyle}>Album</th>
-                <th style={cellStyle}>Dateien</th>
-                <th style={cellStyle}>Größe</th>
-                <th style={cellStyle}>Letzte Aktivität</th>
+                <th style={cellStyle}>Files</th>
+                <th style={cellStyle}>Size</th>
+                <th style={cellStyle}>Last activity</th>
                 <th style={cellStyle} />
               </tr>
             </thead>
@@ -107,7 +107,7 @@ export function AdminView() {
                       disabled={pendingSlug === album.slug}
                       style={{ ...secondaryButtonStyle, color: 'var(--color-danger)' }}
                     >
-                      🗑️ Löschen
+                      🗑️ Delete
                     </button>
                   </td>
                 </tr>
@@ -140,5 +140,5 @@ function formatSize(bytes: number): string {
 }
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' });
+  return new Date(iso).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' });
 }

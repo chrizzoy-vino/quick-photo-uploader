@@ -1,7 +1,9 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { SortField } from '@/lib/gallery';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { deleteMediaItems, fetchMediaPage } from './api';
 import { ConfirmDeleteDialog } from './ConfirmDeleteDialog';
 import { Lightbox } from './Lightbox';
@@ -15,15 +17,16 @@ import type { ApiMediaItem, ViewMode } from './types';
 const PAGE_SIZE = 30;
 const POLL_INTERVAL_MS = 7000;
 
-const SORT_OPTIONS: { value: SortField; label: string }[] = [
-  { value: 'uploadTime', label: 'Neueste zuerst' },
-  { value: 'filename', label: 'Dateiname' },
-  { value: 'type', label: 'Typ' },
-  { value: 'size', label: 'Größe' },
-];
-
 export function AlbumView({ slug }: { slug: string }) {
+  const t = useTranslations('Album');
   const { displayName, setDisplayName } = useDisplayName();
+
+  const SORT_OPTIONS: { value: SortField; label: string }[] = [
+    { value: 'uploadTime', label: t('sortNewest') },
+    { value: 'filename', label: t('sortFilename') },
+    { value: 'type', label: t('sortType') },
+    { value: 'size', label: t('sortSize') },
+  ];
   const [items, setItems] = useState<ApiMediaItem[]>([]);
   const [nextCursor, setNextCursor] = useState<number | null>(null);
   const [sortField, setSortField] = useState<SortField>('uploadTime');
@@ -62,8 +65,8 @@ export function AlbumView({ slug }: { slug: string }) {
         setItems(page.items);
         setNextCursor(page.nextCursor);
       })
-      .catch(() => pushToast('Galerie konnte nicht geladen werden.'));
-  }, [slug, sortField, pushToast]);
+      .catch(() => pushToast(t('galleryLoadFailed')));
+  }, [slug, sortField, pushToast, t]);
 
   const refresh = useCallback(async () => {
     if (isRefreshingRef.current) return;
@@ -101,11 +104,11 @@ export function AlbumView({ slug }: { slug: string }) {
       setItems((current) => [...current, ...page.items]);
       setNextCursor(page.nextCursor);
     } catch {
-      pushToast('Weitere Medien konnten nicht geladen werden.');
+      pushToast(t('moreMediaLoadFailed'));
     } finally {
       loadingMoreRef.current = false;
     }
-  }, [slug, sortField, pushToast]);
+  }, [slug, sortField, pushToast, t]);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -129,15 +132,15 @@ export function AlbumView({ slug }: { slug: string }) {
       retry: () => void,
     ) => {
       if (failed === 0) {
-        pushToast('Hat alles geklappt!');
+        pushToast(t('allUploadsSucceeded'));
       } else {
-        pushToast(`${succeeded} von ${succeeded + failed} hochgeladen, ${failed} fehlgeschlagen`, {
-          label: 'Erneut versuchen',
+        pushToast(t('uploadsSummary', { succeeded, total: succeeded + failed, failed }), {
+          label: t('retry'),
           onClick: retry,
         });
       }
     },
-    [pushToast],
+    [pushToast, t],
   );
 
   const { state: uploadState, enqueue, cancel: cancelUpload } = useUploadQueue({
@@ -159,7 +162,7 @@ export function AlbumView({ slug }: { slug: string }) {
 
   const handleEnterSelectionMode = (id: string) => {
     if (!selectableIds.has(id)) {
-      pushToast('Nur eigene Uploads können gelöscht werden.');
+      pushToast(t('onlyOwnUploadsDeletable'));
       return;
     }
     setSelectionMode(true);
@@ -192,7 +195,7 @@ export function AlbumView({ slug }: { slug: string }) {
       setSelectedIds(new Set());
       await refresh();
     } catch {
-      pushToast('Löschen fehlgeschlagen.');
+      pushToast(t('deleteFailed'));
     }
   };
 
@@ -225,6 +228,8 @@ export function AlbumView({ slug }: { slug: string }) {
           <h1 style={{ fontSize: '1.1rem', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {slug}
           </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+          <LanguageSwitcher />
           {editingName ? (
             <input
               autoFocus
@@ -269,6 +274,7 @@ export function AlbumView({ slug }: { slug: string }) {
               👤 {displayName || '…'}
             </button>
           )}
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: '8px', marginTop: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -296,13 +302,13 @@ export function AlbumView({ slug }: { slug: string }) {
             onClick={() => setViewMode((mode) => (mode === 'grid' ? 'list' : 'grid'))}
             style={secondaryButtonStyle}
           >
-            {viewMode === 'grid' ? '☰ Liste' : '▦ Raster'}
+            {viewMode === 'grid' ? t('viewList') : t('viewGrid')}
           </button>
 
           {selectionMode ? (
             <>
               <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                {selectedIds.size} ausgewählt
+                {t('selectedCount', { count: selectedIds.size })}
               </span>
               <button
                 type="button"
@@ -310,7 +316,7 @@ export function AlbumView({ slug }: { slug: string }) {
                 disabled={selectedIds.size === 0}
                 style={{ ...secondaryButtonStyle, color: 'var(--color-danger)' }}
               >
-                🗑️ Löschen
+                {t('delete')}
               </button>
               <button
                 type="button"
@@ -320,7 +326,7 @@ export function AlbumView({ slug }: { slug: string }) {
                 }}
                 style={secondaryButtonStyle}
               >
-                Abbrechen
+                {t('cancel')}
               </button>
             </>
           ) : null}
@@ -342,8 +348,8 @@ export function AlbumView({ slug }: { slug: string }) {
             }}
           >
             <span style={{ fontSize: '2rem' }}>📷</span>
-            <p style={{ margin: 0 }}>Noch keine Fotos oder Videos hier.</p>
-            <p style={{ margin: 0, fontSize: '0.85rem' }}>Lade die ersten über den Button unten hoch.</p>
+            <p style={{ margin: 0 }}>{t('emptyTitle')}</p>
+            <p style={{ margin: 0, fontSize: '0.85rem' }}>{t('emptyHint')}</p>
           </div>
         ) : (
           <MediaGrid
@@ -389,10 +395,10 @@ export function AlbumView({ slug }: { slug: string }) {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                Lädt hoch… {settledCount}/{totalInBatch}
+                {t('uploading', { settled: settledCount, total: totalInBatch })}
               </span>
               <button type="button" onClick={cancelUpload} style={secondaryButtonStyle}>
-                Abbrechen
+                {t('cancel')}
               </button>
             </div>
           </>
@@ -423,7 +429,7 @@ export function AlbumView({ slug }: { slug: string }) {
                 cursor: 'pointer',
               }}
             >
-              📤 Fotos/Videos hochladen
+              {t('uploadButton')}
             </button>
           </>
         )}
